@@ -74,7 +74,7 @@ Communities often have underutilized resources and people willing to volunteer, 
 
 #### Home Page
 
-![](homepage.png)
+![](Homepage.png)
 
 #### Register Page
 
@@ -82,7 +82,7 @@ Communities often have underutilized resources and people willing to volunteer, 
 
 #### Login Page
 
-![](login.png)
+![](Login.png)
 
 #### Alms (Resources) Page
 
@@ -344,7 +344,7 @@ Response:
 
 ### Roadmap
 
-## **Day 1-2: Project Setup**
+#### **Day 1-2: Project Setup**
 
 - **Front End:**
   - Set up the React Native environment (using Expo or CLI).
@@ -366,7 +366,7 @@ Response:
 
 ---
 
-## **Day 3-5: Core Features and Basic Styling**
+#### **Day 3-5: Core Features and Basic Styling**
 
 - **Home Page:**
   - Build a simple Home Page UI with navigation links to Resources and Opportunities screens.
@@ -387,7 +387,7 @@ Response:
 
 ---
 
-## **Day 6-7: Final Styling And Additional Features (time permitting)**
+#### **Day 6-7: Final Styling And Additional Features (time permitting)**
 
 - **Search and Filter:**
   - Add basic filters for resources (e.g., by location or type).
@@ -399,7 +399,7 @@ Response:
 
 ---
 
-## **Day 8-9: User Authentication**
+#### **Day 8-9: User Authentication**
 
 - Implement **JWT-based authentication** for user login and registration.
   - **Back End:**
@@ -414,7 +414,7 @@ Response:
 
 ---
 
-## **Day 10-11: Testing, Bug Fixes, Code Clean**
+#### **Day 10-11: Testing, Bug Fixes, Code Clean**
 
 - Perform end-to-end testing of the app to ensure:
   - Resources and Opportunities can be created, viewed, and retrieved as expected.
@@ -424,7 +424,7 @@ Response:
 
 ---
 
-## **Demo Day**
+#### **Demo Day**
 
 ## **Deliverables**
 
