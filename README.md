@@ -110,6 +110,8 @@ Communities often have underutilized resources and people willing to volunteer, 
 
 ### Data
 
+![](schema.png)
+
 ### Database Tables
 
 1. **Users**: Stores user information like name, contact info, location, etc.
