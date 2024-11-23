@@ -1,33 +1,54 @@
+// AlmsScreen.tsx
+import React, { useState, useEffect } from "react";
 import { StyleSheet, FlatList, Image, View } from "react-native";
 import { ThemedText } from "@/src/components/ThemedText";
 import { ThemedView } from "@/src/components/ThemedView";
+import { getAllResources } from "../../lib/api"; // Import the API function
+import { Alm } from "../../lib/types"; // Import Alm type
 
 export default function AlmsScreen() {
-  const resources = [
-    {
-      id: "1",
-      title: "Food Bank",
-      description: "Local food distribution center.",
-      image: require("@/assets/images/icon.png"),
-    },
-    {
-      id: "2",
-      title: "Clothing Drive",
-      description: "Donate or pick up clothes.",
-      image: require("@/assets/images/icon.png"),
-    },
-    {
-      id: "3",
-      title: "Shelter Assistance",
-      description: "Temporary housing support.",
-      image: require("@/assets/images/icon.png"),
-    },
-  ];
+  const [resources, setResources] = useState<Alm[]>([]); // State to hold resources
+  const [loading, setLoading] = useState<boolean>(true); // State for loading state
+  const [error, setError] = useState<string | null>(null); // State for error handling
+
+  // Function to fetch resources from the backend API
+  const fetchResources = async () => {
+    try {
+      const response = await getAllResources(); // Using the API function
+      setResources(response); // Update state with fetched resources
+    } catch (error) {
+      setError("Failed to load resources"); // Set error message if the request fails
+    } finally {
+      setLoading(false); // Set loading to false once the request is complete
+    }
+  };
+
+  // Use effect to fetch resources on component mount
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
+  // Display loading state or error if data is not loaded yet
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ThemedText>Loading...</ThemedText>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <ThemedText>{error}</ThemedText>
+      </View>
+    );
+  }
 
   return (
     <FlatList
       data={resources}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item.id.toString()}
       ListHeaderComponent={
         <View>
           <Image
@@ -41,9 +62,9 @@ export default function AlmsScreen() {
       }
       renderItem={({ item }) => (
         <ThemedView style={styles.card}>
-          <Image source={item.image} style={styles.cardImage} />
+          <Image source={{ uri: item.image_url }} style={styles.cardImage} />{" "}
           <ThemedText type="subtitle" style={styles.cardTitle}>
-            {item.title}
+            {item.name}
           </ThemedText>
           <ThemedText style={styles.cardDescription}>
             {item.description}
@@ -96,5 +117,17 @@ const styles = StyleSheet.create({
   cardDescription: {
     fontSize: 14,
     color: "#555",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8d7da",
+    padding: 20,
   },
 });

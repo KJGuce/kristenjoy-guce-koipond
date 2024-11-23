@@ -53,13 +53,12 @@ const Home: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Alms List */}
       <FlatList
         data={alms}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>{item.title}</Text>
+            <Text style={styles.cardTitle}>{item.name}</Text>
             <Text style={styles.cardDescription}>{item.description}</Text>
           </View>
         )}
@@ -77,7 +76,6 @@ const Home: React.FC = () => {
         }
       />
 
-      {/* Acts List */}
       <FlatList
         data={acts}
         keyExtractor={(item) => item.id.toString()}
