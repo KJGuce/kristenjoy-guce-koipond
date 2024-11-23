@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, Text } from "react-native";
-import { ThemedView } from "@/";
+import { ThemedView } from "@//src/components/ThemedView";
 import { ThemedText } from "@/src/components/ThemedText";
 
 export default function ActsScreen() {
