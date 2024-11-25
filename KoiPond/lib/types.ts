@@ -1,6 +1,6 @@
 // lib/types.ts
 export interface Alm {
-  id: string; // Assuming you'll have a unique ID for each resource
+  id: number; // Assuming you'll have a unique ID for each resource
   name: string; // Name of the resource
   description: string; // Description of the resource
   category: string; // Category like 'Food', 'Shelter', etc.
@@ -14,7 +14,7 @@ export interface Alm {
 }
 
 export interface Act {
-  id: string; // Unique identifier for the act
+  id: number; // Unique identifier for the act
   title: string; // Title of the act
   description: string; // Description of the act
   category: string; // Category (e.g., "Volunteer", "Health", "Donation", etc.)
@@ -25,3 +25,9 @@ export interface Act {
   created_at: string; // Timestamp when the act was created
   updated_at: string; // Timestamp when the act was last updated
 }
+
+// App.tsx
+export type RootStackParamList = {
+  AlmsScreen: undefined;
+  AlmsDetailsScreen: { almId: number };
+};

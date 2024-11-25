@@ -1,4 +1,3 @@
-// lib/api.tsx
 import axios from "axios";
 import { Alm, Act } from "./types";
 
@@ -33,6 +32,17 @@ export const getAllResources = async (): Promise<Alm[]> => {
     return response.data;
   } catch (error) {
     console.error("Error fetching resources", error);
+    throw error;
+  }
+};
+
+// Fetch a single alm by ID
+export const getAlmById = async (id: string): Promise<Alm> => {
+  try {
+    const response = await axios.get(`${API_URL}/resources/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching alm with id ${id}`, error);
     throw error;
   }
 };

@@ -1,39 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, FlatList, Image, View } from "react-native";
+import {
+  StyleSheet,
+  FlatList,
+  Image,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import { ThemedText } from "@/src/components/ThemedText";
 import { ThemedView } from "@/src/components/ThemedView";
-import { getAllResources } from "../../lib/api"; // Import the API function
-import { Alm } from "../../lib/types"; // Import Alm type
+import { getAllResources } from "../../lib/api";
+import { Alm } from "../../lib/types";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "../../lib/types";
 
 export default function AlmsScreen() {
-  const [resources, setResources] = useState<Alm[]>([]); // State to hold resources
-  const [loading, setLoading] = useState<boolean>(true); // State for loading state
-  const [error, setError] = useState<string | null>(null); // State for error handling
+  const [resources, setResources] = useState<Alm[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Function to fetch resources from the backend API
+  // Use typed navigation
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const fetchResources = async () => {
     try {
-      const response = await getAllResources(); // Using the API function
-      setResources(response); // Update state with fetched resources
+      const response = await getAllResources();
+      setResources(response);
     } catch (error) {
-      console.error("Error fetching resources:", error); // Log any fetch errors
-      setError("Failed to load resources"); // Set error message if the request fails
+      console.error("Error fetching resources:", error);
+      setError("Failed to load resources");
     } finally {
-      setLoading(false); // Set loading to false once the request is complete
+      setLoading(false);
     }
   };
 
-  // Use effect to fetch resources on component mount
   useEffect(() => {
     fetchResources();
   }, []);
 
-  // Debug the `resources` array whenever it changes
-  useEffect(() => {
-    console.log("Fetched resources:", resources);
-  }, [resources]);
-
-  // Display loading state or error if data is not loaded yet
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -53,7 +56,7 @@ export default function AlmsScreen() {
   return (
     <FlatList
       data={resources}
-      keyExtractor={(item) => item.id.toString()}
+      keyExtractor={(item) => item.id.toString()} // `item.id` is a number, but `keyExtractor` needs a string
       ListHeaderComponent={
         <View>
           <Image
@@ -65,15 +68,19 @@ export default function AlmsScreen() {
           </ThemedView>
         </View>
       }
-      renderItem={({ item }) => {
-        return (
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          onPress={() => {
+            // Pass almId to the details screen
+            navigation.navigate("AlmsDetailsScreen", { almId: item.id });
+          }}
+        >
           <ThemedView style={styles.card}>
             <Image
               source={{ uri: item.image_url }}
               style={styles.cardImage}
-              onError={
-                (error) =>
-                  console.log("Error loading image:", error.nativeEvent.error) // Log image load errors
+              onError={(error) =>
+                console.log("Error loading image:", error.nativeEvent.error)
               }
             />
             <ThemedText type="subtitle" style={styles.cardTitle}>
@@ -86,8 +93,8 @@ export default function AlmsScreen() {
               Quantity: {item.quantity} | Location: {item.location}
             </ThemedText>
           </ThemedView>
-        );
-      }}
+        </TouchableOpacity>
+      )}
       contentContainerStyle={styles.listContent}
     />
   );
