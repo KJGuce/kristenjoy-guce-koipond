@@ -1,4 +1,3 @@
-// AlmsScreen.tsx
 import React, { useState, useEffect } from "react";
 import { StyleSheet, FlatList, Image, View } from "react-native";
 import { ThemedText } from "@/src/components/ThemedText";
@@ -17,6 +16,7 @@ export default function AlmsScreen() {
       const response = await getAllResources(); // Using the API function
       setResources(response); // Update state with fetched resources
     } catch (error) {
+      console.error("Error fetching resources:", error); // Log any fetch errors
       setError("Failed to load resources"); // Set error message if the request fails
     } finally {
       setLoading(false); // Set loading to false once the request is complete
@@ -27,6 +27,11 @@ export default function AlmsScreen() {
   useEffect(() => {
     fetchResources();
   }, []);
+
+  // Debug the `resources` array whenever it changes
+  useEffect(() => {
+    console.log("Fetched resources:", resources);
+  }, [resources]);
 
   // Display loading state or error if data is not loaded yet
   if (loading) {
@@ -60,17 +65,29 @@ export default function AlmsScreen() {
           </ThemedView>
         </View>
       }
-      renderItem={({ item }) => (
-        <ThemedView style={styles.card}>
-          <Image source={{ uri: item.image_url }} style={styles.cardImage} />{" "}
-          <ThemedText type="subtitle" style={styles.cardTitle}>
-            {item.name}
-          </ThemedText>
-          <ThemedText style={styles.cardDescription}>
-            {item.description}
-          </ThemedText>
-        </ThemedView>
-      )}
+      renderItem={({ item }) => {
+        return (
+          <ThemedView style={styles.card}>
+            <Image
+              source={{ uri: item.image_url }}
+              style={styles.cardImage}
+              onError={
+                (error) =>
+                  console.log("Error loading image:", error.nativeEvent.error) // Log image load errors
+              }
+            />
+            <ThemedText type="subtitle" style={styles.cardTitle}>
+              {item.name}
+            </ThemedText>
+            <ThemedText style={styles.cardDescription}>
+              {item.description}
+            </ThemedText>
+            <ThemedText style={styles.cardDetails}>
+              Quantity: {item.quantity} | Location: {item.location}
+            </ThemedText>
+          </ThemedView>
+        );
+      }}
       contentContainerStyle={styles.listContent}
     />
   );
@@ -117,6 +134,11 @@ const styles = StyleSheet.create({
   cardDescription: {
     fontSize: 14,
     color: "#555",
+  },
+  cardDetails: {
+    fontSize: 12,
+    color: "#777",
+    marginTop: 8,
   },
   loadingContainer: {
     flex: 1,
