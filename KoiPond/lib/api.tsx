@@ -2,7 +2,7 @@
 import axios from "axios";
 import { Alm, Act } from "./types";
 
-const API_URL = "http://localhost:8080"; // Adjust if necessary
+const API_URL = "http://10.0.0.175:8080"; // Adjust if necessary
 
 // Fetch latest alms (resources)
 export const getLatestAlms = async (): Promise<Alm[]> => {
