@@ -36,6 +36,17 @@ export const getAllResources = async (): Promise<Alm[]> => {
   }
 };
 
+// Fetch all acts (volunteer opportunities)
+export const getAllActs = async (): Promise<Act[]> => {
+  try {
+    const response = await axios.get(`${API_URL}/opportunities`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching all acts", error);
+    throw error;
+  }
+};
+
 // Fetch a single alm by ID
 export const getAlmById = async (id: string): Promise<Alm> => {
   try {

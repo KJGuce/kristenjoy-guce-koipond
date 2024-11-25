@@ -1,23 +1,47 @@
-import { FlatList, StyleSheet, Text } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import { ThemedView } from "@/src/components/ThemedView";
 import { ThemedText } from "@/src/components/ThemedText";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { getAllActs } from "../../lib/api"; // Assumed API function for fetching acts
+import { Act } from "../../lib/types";
 
 export default function ActsScreen() {
-  const Acts = [
-    {
-      id: "1",
-      title: "Beach Cleanup",
-      description: "Join us for a beach cleanup.",
-      date: "Jan 25, 2025",
-    },
-    {
-      id: "2",
-      title: "Soup Kitchen Volunteering",
-      description: "Help serve meals.",
-      date: "Jan 26, 2025",
-    },
-  ];
+  const [acts, setActs] = useState<Act[]>([]); // Define Act type for proper TypeScript usage
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch acts from the API
+  const fetchActs = async () => {
+    try {
+      const response = await getAllActs(); // API function to fetch all volunteer opportunities
+      setActs(response);
+    } catch (error) {
+      console.error("Error fetching acts:", error);
+      setError("Failed to load acts");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchActs();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ThemedText>Loading...</ThemedText>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <ThemedText>{error}</ThemedText>
+      </View>
+    );
+  }
 
   return (
     <FlatList
@@ -26,8 +50,8 @@ export default function ActsScreen() {
           <ThemedText type="title">Acts</ThemedText>
         </ThemedView>
       }
-      data={Acts}
-      keyExtractor={(item) => item.id}
+      data={acts}
+      keyExtractor={(item) => item.id.toString()} // Ensure `id` is a string for keyExtractor
       renderItem={({ item }) => (
         <ThemedView style={styles.card}>
           <ThemedText type="subtitle" style={styles.cardTitle}>
@@ -35,7 +59,13 @@ export default function ActsScreen() {
           </ThemedText>
           <ThemedText>{item.description}</ThemedText>
           <ThemedText type="defaultSemiBold" style={styles.date}>
-            {item.date}
+            {item.start_date}
+          </ThemedText>
+          <ThemedText type="defaultSemiBold" style={styles.date}>
+            {item.end_date}
+          </ThemedText>
+          <ThemedText type="defaultSemiBold" style={styles.date}>
+            {item.end_date}
           </ThemedText>
         </ThemedView>
       )}
@@ -66,5 +96,17 @@ const styles = StyleSheet.create({
   date: {
     marginTop: 8,
     color: "#888",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8d7da",
+    padding: 20,
   },
 });
