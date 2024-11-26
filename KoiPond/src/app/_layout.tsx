@@ -37,7 +37,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="alms"
+        name="AlmsStack"
         options={{
           title: "Alms",
           tabBarIcon: ({ color }) => (
