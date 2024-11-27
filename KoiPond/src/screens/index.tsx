@@ -8,7 +8,6 @@ import {
   RefreshControl,
   Image, // Import Image for displaying alms images
 } from "react-native";
-import SearchInput from "../components/SearchInput";
 import EmptyState from "../components/EmptyState";
 import { getLatestAlms, getLatestActs } from "../../lib/api"; // Import API functions
 import { Alm, Act } from "../../lib/types"; // Import types for Alms and Acts
@@ -70,7 +69,6 @@ const Home: React.FC = () => {
             {/* Page Header */}
             <View style={styles.header}>
               <Text style={styles.title}>My Pond</Text>
-              <SearchInput onChangeText={(text) => console.log(text)} />
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   style={styles.button}

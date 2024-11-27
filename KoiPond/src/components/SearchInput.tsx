@@ -1,19 +1,22 @@
 // components/SearchInput.tsx
 import React from "react";
-import { TextInput, View, StyleSheet } from "react-native";
+import { TextInput, View, StyleSheet, TextInputProps } from "react-native";
 
-interface SearchInputProps {
+// Extending TextInputProps to accept standard TextInput props
+interface SearchInputProps extends TextInputProps {
   onChangeText: (text: string) => void;
 }
 
-const SearchInput: React.FC<SearchInputProps> = ({ onChangeText }) => {
+const SearchInput: React.FC<SearchInputProps> = ({
+  onChangeText,
+  ...rest // Spread the remaining props (e.g., placeholder, value, etc.)
+}) => {
   return (
     <View style={styles.container}>
       <TextInput
         style={styles.input}
-        placeholder="Search Alms or Acts"
-        placeholderTextColor="#aaa"
         onChangeText={onChangeText}
+        {...rest} // Apply the rest of the props to TextInput
       />
     </View>
   );
@@ -22,6 +25,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onChangeText }) => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: 10,
+    marginHorizontal: 40,
   },
   input: {
     height: 40,
@@ -29,8 +33,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingLeft: 10,
-    color: "#fff",
-    backgroundColor: "#222",
+    color: "#444", // Darker text color for better contrast
+    backgroundColor: "#f0f0f0", // Lighter grey background
   },
 });
 

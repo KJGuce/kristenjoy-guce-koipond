@@ -12,6 +12,7 @@ type IconSymbolName =
   | "figure.2.circle.fill"
   | "gift.fill"
   | "volunteer-activism"
+  | "arrow-back" // Add the back arrow icon here
   | keyof typeof MaterialIcons.glyphMap
   | keyof typeof Ionicons.glyphMap;
 
@@ -26,6 +27,7 @@ const MAPPING: Partial<
   "figure.2.circle.fill": { name: "people-circle", type: "ionicons" }, // Example for Ionicons
   "gift.fill": { name: "gift", type: "ionicons" }, // Example for Ionicons
   "volunteer-activism": { name: "volunteer-activism", type: "material" },
+  "arrow-back": { name: "arrow-back", type: "ionicons" }, // Add back arrow mapping
 };
 
 // Component props definition

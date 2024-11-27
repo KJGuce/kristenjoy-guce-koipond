@@ -28,13 +28,15 @@ export interface Act {
 
 // App.tsx
 export type RootStackParamList = {
+  HomeScreen: undefined;
   AlmsScreen: undefined;
   ActsScreen: undefined;
   AlmsDetailsScreen: { almId: number };
   ActsDetailsScreen: { actId: number };
   PostAlmScreen: undefined;
   PostActScreen: undefined;
-  HomeScreen: undefined;
   Profile: undefined;
   Settings: undefined;
+  // Add SearchResultsScreen
+  SearchResultsScreen: { query: string };
 };

@@ -333,4 +333,29 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: "white", // White text
   },
+
+  //Acts
+  cardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingBottom: 10,
+  },
+
+  userIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+    backgroundColor: "#DDD", // Placeholder background color
+  },
+
+  textContent: {
+    flex: 1,
+  },
+
+  //back button
+  backButton: {
+    marginLeft: 10,
+    padding: 5, // Adjust this to position the back button
+  },
 });

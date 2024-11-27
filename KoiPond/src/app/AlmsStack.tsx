@@ -9,7 +9,12 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 export default function AlmsStack() {
   return (
-    <Stack.Navigator initialRouteName="AlmsScreen">
+    <Stack.Navigator
+      initialRouteName="AlmsScreen"
+      screenOptions={{
+        headerShown: false, // Disable the default header for all screens in this stack
+      }}
+    >
       <Stack.Screen name="AlmsScreen" component={AlmsScreen} />
       <Stack.Screen name="AlmsDetailsScreen" component={AlmsDetailsScreen} />
     </Stack.Navigator>

@@ -9,7 +9,12 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 export default function ActsStack() {
   return (
-    <Stack.Navigator initialRouteName="ActsScreen">
+    <Stack.Navigator
+      initialRouteName="ActsScreen"
+      screenOptions={{
+        headerShown: false, // Disable the default header for all screens in this stack
+      }}
+    >
       <Stack.Screen name="ActsScreen" component={ActsScreen} />
       <Stack.Screen name="ActsDetailsScreen" component={ActsDetailsScreen} />
     </Stack.Navigator>

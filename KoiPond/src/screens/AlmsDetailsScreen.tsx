@@ -6,9 +6,8 @@ import { Alm } from "../../lib/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../lib/types";
 import { getAlmById, getAllResources } from "../../lib/api";
-
-// Import the main Styles.tsx file
-import { styles } from "../components/Styles"; // Adjust the path based on where your Styles.tsx is
+import { styles } from "../components/Styles";
+import { IconSymbol } from "../components/ui/IconSymbol"; // Adjust the path based on your project structure
 
 type Props = NativeStackScreenProps<RootStackParamList, "AlmsDetailsScreen">;
 
@@ -18,6 +17,7 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
   const [remainingAlms, setRemainingAlms] = useState<Alm[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch alm details and other resources on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -39,6 +39,21 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
     fetchData();
   }, [almId]);
 
+  // Configure a back button in the header
+  useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <IconSymbol name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  // Render loading state
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -47,6 +62,7 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
     );
   }
 
+  // Render error state when the specified alm is not found
   if (!alm) {
     return (
       <View style={styles.errorContainer}>
@@ -55,6 +71,7 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
     );
   }
 
+  // Main UI rendering
   return (
     <ThemedView style={styles.almsDetailsContainer}>
       {/* Alm Details Section */}
