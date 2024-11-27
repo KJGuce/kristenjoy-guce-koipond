@@ -35,4 +35,6 @@ export type RootStackParamList = {
   PostAlmScreen: undefined;
   PostActScreen: undefined;
   HomeScreen: undefined;
+  Profile: undefined;
+  Settings: undefined;
 };

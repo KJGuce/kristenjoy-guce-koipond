@@ -193,12 +193,8 @@ export default function AlmsScreen() {
         keyExtractor={(item) => item.id.toString()} // `item.id` is a number, but `keyExtractor` needs a string
         ListHeaderComponent={
           <View>
-            <Image
-              source={require("@/assets/images/logo-placeholder-image.png")}
-              style={styles.headerImage}
-            />
             <ThemedView style={styles.titleContainer}>
-              <ThemedText type="title">Alms (Resources)</ThemedText>
+              <ThemedText type="title">Alms</ThemedText>
             </ThemedView>
           </View>
         }
