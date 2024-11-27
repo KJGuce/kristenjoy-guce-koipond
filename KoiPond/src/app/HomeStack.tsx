@@ -1,18 +1,23 @@
 // app/home/HomeStack.tsx
 import { createStackNavigator } from "@react-navigation/stack";
-import Home from "./index"; // Import the home page
+import HomeScreen from "./index"; // Import the home page
 import PostAlmScreen from "../screens/PostAlmScreen"; // Import post alm page
 import PostActScreen from "../screens/PostActScreen"; // Import post act page
+import ActsDetailsScreen from "../screens/ActsDetailsScreen"; // Import your details screen
+import AlmsDetailsScreen from "../screens/AlmsDetailsScreen"; // Import your details screen
+
 import { RootStackParamList } from "../../lib/types"; // Import type from types folder
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function HomeStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="HomeScreen" component={Home} />
+    <Stack.Navigator initialRouteName="HomeScreen">
+      <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="PostAlmScreen" component={PostAlmScreen} />
       <Stack.Screen name="PostActScreen" component={PostActScreen} />
+      <Stack.Screen name="AlmsDetailsScreen" component={AlmsDetailsScreen} />
+      <Stack.Screen name="ActsDetailsScreen" component={ActsDetailsScreen} />
     </Stack.Navigator>
   );
 }
