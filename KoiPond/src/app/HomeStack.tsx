@@ -1,6 +1,6 @@
 // app/home/HomeStack.tsx
 import { createStackNavigator } from "@react-navigation/stack";
-import HomeScreen from "./index"; // Import the home page
+import HomeScreen from "../screens/index"; // Import the home page
 import PostAlmScreen from "../screens/PostAlmScreen"; // Import post alm page
 import PostActScreen from "../screens/PostActScreen"; // Import post act page
 import ActsDetailsScreen from "../screens/ActsDetailsScreen"; // Import your details screen

@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity,
   RefreshControl,
+  Image, // Import Image for displaying alms images
 } from "react-native";
 import SearchInput from "../components/SearchInput";
 import EmptyState from "../components/EmptyState";
@@ -62,7 +63,6 @@ const Home: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        // Set data to an empty array as we don't need to render items directly
         data={[]}
         keyExtractor={(item, index) => index.toString()}
         ListHeaderComponent={
@@ -74,13 +74,13 @@ const Home: React.FC = () => {
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => navigation.navigate("PostAlmScreen")} // Navigating to PostAlmScreen
+                  onPress={() => navigation.navigate("PostAlmScreen")}
                 >
                   <Text style={styles.buttonText}>Post an Alm</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => navigation.navigate("PostActScreen")} // Navigating to PostActScreen
+                  onPress={() => navigation.navigate("PostActScreen")}
                 >
                   <Text style={styles.buttonText}>Post an Act</Text>
                 </TouchableOpacity>
@@ -103,10 +103,15 @@ const Home: React.FC = () => {
                     }
                   >
                     <View style={styles.card}>
+                      {/* Image */}
+                      <Image
+                        source={{ uri: item.image_url }}
+                        style={styles.cardImage}
+                        resizeMode="cover"
+                      />
+                      {/* Title and Description */}
                       <Text style={styles.cardTitle}>{item.name}</Text>
-                      <Text style={styles.cardDescription}>
-                        {item.description}
-                      </Text>
+                      <Text style={styles.cardLocation}>{item.location}</Text>
                     </View>
                   </TouchableOpacity>
                 )}
@@ -164,7 +169,6 @@ const Home: React.FC = () => {
             </View>
           </>
         }
-        // Define the renderItem even though it's not used here for the main FlatList
         renderItem={() => null}
       />
     </SafeAreaView>

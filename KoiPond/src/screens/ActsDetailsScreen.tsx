@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, FlatList } from "react-native";
+import { FlatList, View, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/src/components/ThemedText";
 import { ThemedView } from "@/src/components/ThemedView";
 import { Act } from "../../lib/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../lib/types"; // Import your navigation type
-import { getActById, getAllOpportunities } from "../../lib/api"; // Import necessary API functions
+import { RootStackParamList } from "../../lib/types";
+import { getActById, getAllOpportunities } from "../../lib/api";
 
-// Define props for this screen using NativeStackScreenProps
+// Import the main Styles.tsx file
+import { styles } from "../components/Styles"; // Adjust path as necessary
+
 type Props = NativeStackScreenProps<RootStackParamList, "ActsDetailsScreen">;
 
-function ActsDetailsScreen({ route }: Props) {
+function ActsDetailsScreen({ route, navigation }: Props) {
   const { actId } = route.params; // Access the route parameters
 
   // State to hold the selected act and remaining acts
@@ -22,11 +24,9 @@ function ActsDetailsScreen({ route }: Props) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch the selected act using actId
         const fetchedAct = await getActById(actId.toString());
         setAct(fetchedAct);
 
-        // Fetch all acts and filter out the selected act
         const allActs = await getAllOpportunities();
         const filteredActs = allActs.filter((item) => item.id !== actId);
         setRemainingActs(filteredActs);
@@ -56,63 +56,54 @@ function ActsDetailsScreen({ route }: Props) {
     );
   }
 
+  // Handle navigation to another Act's details
+  const handleSelectAct = (actId: number) => {
+    // Navigate to the details page for the selected act
+    navigation.navigate("ActsDetailsScreen", { actId });
+  };
+
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.actsDetailsContainer}>
       {/* Details Card */}
-      <View style={styles.detailsCard}>
-        <ThemedText type="title" style={styles.cardTitle}>
+      <ThemedView style={styles.actsDetailsCard}>
+        <ThemedText type="title" style={styles.actsDetailsCardTitle}>
           {act.title}
         </ThemedText>
-        <ThemedText style={styles.cardDescription}>
+        <ThemedText style={styles.actsDetailsCardDescription}>
           {act.description}
         </ThemedText>
-        <ThemedText style={styles.cardDetails}>
+        <ThemedText style={styles.actsDetailsCardDetails}>
           Category: {act.category}
         </ThemedText>
-        <ThemedText style={styles.cardDetails}>
+        <ThemedText style={styles.actsDetailsCardDetails}>
           Start Date: {act.start_date}
         </ThemedText>
-        <ThemedText style={styles.cardDetails}>
+        <ThemedText style={styles.actsDetailsCardDetails}>
           End Date: {act.end_date}
         </ThemedText>
-      </View>
+      </ThemedView>
 
       {/* Remaining Acts */}
-      <ThemedView style={styles.remainingActsContainer}>
-        <ThemedText type="subtitle" style={styles.remainingTitle}>
-          Remaining Acts
+      <ThemedView style={styles.actsRemainingActsContainer}>
+        <ThemedText type="subtitle" style={styles.actsRemainingTitle}>
+          Other Acts
         </ThemedText>
         <FlatList
           data={remainingActs}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <ThemedView style={styles.card}>
-              <ThemedText type="subtitle">{item.title}</ThemedText>
-            </ThemedView>
+            <TouchableOpacity onPress={() => handleSelectAct(item.id)}>
+              <ThemedView style={styles.card}>
+                <ThemedText type="subtitle" style={styles.remainingActText}>
+                  {item.title}
+                </ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
           )}
         />
       </ThemedView>
-    </View>
+    </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  detailsCard: { marginBottom: 24 },
-  cardTitle: { fontSize: 18, marginBottom: 4, color: "#2B3E33" },
-  cardDescription: { fontSize: 14, color: "#555" },
-  cardDetails: { fontSize: 12, color: "#777", marginTop: 8 },
-  remainingActsContainer: { marginTop: 16 },
-  remainingTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 8 },
-  card: {
-    flexDirection: "column",
-    padding: 16,
-    marginVertical: 8,
-    backgroundColor: "#FFF",
-    borderRadius: 8,
-  },
-  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  errorContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-});
 
 export default ActsDetailsScreen;
