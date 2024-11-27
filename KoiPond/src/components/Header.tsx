@@ -29,7 +29,7 @@ const Header = () => {
         <View style={styles.rightIcons}>
           <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
             <Image
-              source={require("../../assets/images/icon.png")}
+              source={require("../../assets/images/5856.jpg")}
               style={styles.profilePic}
             />
           </TouchableOpacity>

@@ -5,6 +5,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#121212", // Dark mode background
     padding: 16,
+    paddingBottom: 80,
   },
   header: {
     padding: 16,

@@ -17,6 +17,7 @@ export default function TabLayout() {
       <Header />
 
       <Tabs
+        initialRouteName="HomeStack" // This ensures the Home tab is selected by default
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
           headerShown: false, // Disable default header, as we already have our own custom one
