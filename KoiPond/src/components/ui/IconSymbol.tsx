@@ -1,8 +1,9 @@
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React from "react";
 import { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-// Define a custom type for valid icon names
+// Define a custom type for valid icon names for both libraries
 type IconSymbolName =
   | "house.fill"
   | "paperplane.fill"
@@ -11,16 +12,20 @@ type IconSymbolName =
   | "figure.2.circle.fill"
   | "gift.fill"
   | "volunteer-activism"
-  | keyof typeof MaterialIcons.glyphMap; // All valid MaterialIcons names
+  | keyof typeof MaterialIcons.glyphMap
+  | keyof typeof Ionicons.glyphMap;
 
-// Create a mapping from custom icon names to MaterialIcons names
-const MAPPING: Partial<Record<IconSymbolName, string>> = {
-  "house.fill": "home",
-  "paperplane.fill": "send",
-  "chevron.left.forwardslash.chevron.right": "code",
-  "chevron.right": "chevron-right",
-  "figure.2.circle.fill": "volunteer-activism", // Custom icon for volunteer-activism
-  "gift.fill": "gift", // Custom icon for gift
+// Extend the mapping to include both Material Icons and Ionicons
+const MAPPING: Partial<
+  Record<IconSymbolName, { name: string; type: "material" | "ionicons" }>
+> = {
+  "house.fill": { name: "home", type: "material" },
+  "paperplane.fill": { name: "send", type: "material" },
+  "chevron.left.forwardslash.chevron.right": { name: "code", type: "material" },
+  "chevron.right": { name: "chevron-right", type: "material" },
+  "figure.2.circle.fill": { name: "people-circle", type: "ionicons" }, // Example for Ionicons
+  "gift.fill": { name: "gift", type: "ionicons" }, // Example for Ionicons
+  "volunteer-activism": { name: "volunteer-activism", type: "material" },
 };
 
 // Component props definition
@@ -28,20 +33,34 @@ type IconSymbolProps = {
   name: IconSymbolName;
   size?: number;
   color: string | OpaqueColorValue;
-  style?: StyleProp<TextStyle>; // Change here to TextStyle
+  style?: StyleProp<TextStyle>;
 };
 
 // IconSymbol component
 export function IconSymbol({ name, size = 24, color, style }: IconSymbolProps) {
-  // Use the MAPPING or fallback to the name if it's not in the MAPPING
-  const iconName = MAPPING[name] || name;
+  // Map the icon name and determine the icon type (Material or Ionicons)
+  const iconDetails = MAPPING[name] || { name, type: "material" };
 
-  return (
-    <MaterialIcons
-      color={color}
-      size={size}
-      name={iconName as keyof typeof MaterialIcons.glyphMap} // Explicitly cast to valid icon name
-      style={style}
-    />
-  );
+  if (iconDetails.type === "material") {
+    return (
+      <MaterialIcons
+        name={iconDetails.name as keyof typeof MaterialIcons.glyphMap}
+        size={size}
+        color={color}
+        style={style}
+      />
+    );
+  } else if (iconDetails.type === "ionicons") {
+    return (
+      <Ionicons
+        name={iconDetails.name as keyof typeof Ionicons.glyphMap}
+        size={size}
+        color={color}
+        style={style}
+      />
+    );
+  }
+
+  // If type is unknown, fallback to a default icon or error handling
+  return null;
 }

@@ -28,7 +28,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="HomeStack"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
@@ -41,16 +41,16 @@ export default function TabLayout() {
         options={{
           title: "Alms",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="gift.fill" color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="acts"
+        name="ActsStack"
         options={{
           title: "Acts",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="figure.2.circle.fill" color={color} />
           ),
         }}
       />
