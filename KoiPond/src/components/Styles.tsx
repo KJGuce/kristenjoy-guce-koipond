@@ -86,15 +86,15 @@ export const styles = StyleSheet.create({
     marginTop: 24,
   },
   button: {
-    backgroundColor: "#46B3A5", // Teal button color
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    flex: 1,
-    marginHorizontal: 8,
+    flex: 1, // Allow the buttons to take equal width
+    padding: 15,
+    marginHorizontal: 5, // Add horizontal spacing between buttons
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: {
-    color: "#121212", // Dark text for contrast with the button color
+    color: "#121212",
     fontSize: 14,
     fontWeight: "bold",
     textAlign: "center",
@@ -226,11 +226,7 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
-  modalButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
+
   volunteerButton: {
     backgroundColor: "#46B3A5", // Teal button color
     paddingVertical: 12,
@@ -378,7 +374,7 @@ export const styles = StyleSheet.create({
   },
 
   applyButton: {
-    backgroundColor: "#28a745", // Green color for apply button
+    backgroundColor: "#007bff", // Green color for apply button
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
@@ -405,5 +401,17 @@ export const styles = StyleSheet.create({
     alignItems: "center", // Center the text horizontally
     justifyContent: "center", // Center the text vertically
     width: "100%", // Full width to align with the Apply button
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1, // Ensure the close button is above other content
+  },
+  modalButtonContainer: {
+    flexDirection: "row", // Align buttons side by side
+    justifyContent: "space-between", // Space buttons out
+    marginTop: 20, // Add some space from the filter inputs
+    width: "100%", // Take up full width of the modal
   },
 });

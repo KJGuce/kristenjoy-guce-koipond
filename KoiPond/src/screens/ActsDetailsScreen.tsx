@@ -6,6 +6,7 @@ import { Act } from "../../lib/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../lib/types";
 import { getActById, getAllOpportunities } from "../../lib/api";
+import BackAction from "../components/BackAction"; // Adjust the path based on your project structure
 
 // Import the main Styles.tsx file
 import { styles } from "../components/Styles"; // Adjust path as necessary
@@ -64,6 +65,8 @@ function ActsDetailsScreen({ route, navigation }: Props) {
 
   return (
     <ThemedView style={styles.actsDetailsContainer}>
+      <BackAction></BackAction>
+
       {/* Details Card */}
       <ThemedView style={styles.actsDetailsCard}>
         <ThemedText type="title" style={styles.actsDetailsCardTitle}>

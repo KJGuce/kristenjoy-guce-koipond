@@ -7,7 +7,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../lib/types";
 import { getAlmById, getAllResources } from "../../lib/api";
 import { styles } from "../components/Styles";
-import { IconSymbol } from "../components/ui/IconSymbol"; // Adjust the path based on your project structure
+import { IconSymbol } from "../components/ui/IconSymbol";
+import BackAction from "../components/BackAction"; // Adjust the path based on your project structure
 
 type Props = NativeStackScreenProps<RootStackParamList, "AlmsDetailsScreen">;
 
@@ -74,6 +75,7 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
   // Main UI rendering
   return (
     <ThemedView style={styles.almsDetailsContainer}>
+      <BackAction></BackAction>
       {/* Alm Details Section */}
       <ThemedView style={styles.almsDetailsCard}>
         <Image

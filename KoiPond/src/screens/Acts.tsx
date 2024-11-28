@@ -219,6 +219,14 @@ export default function ActsScreen() {
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Filter Acts</Text>
 
+            {/* Close Button */}
+            <TouchableOpacity
+              style={styles.closeButton} // Add a custom style for close button
+              onPress={() => setFilterModalVisible(false)} // Close the filter modal
+            >
+              <Text style={styles.buttonText}>X</Text>
+            </TouchableOpacity>
+
             {/* Category Filter */}
             <Text style={styles.modalLabel}>Category</Text>
             <RNPickerSelect
@@ -257,7 +265,7 @@ export default function ActsScreen() {
 
               <TouchableOpacity
                 style={[styles.button, styles.applyButton]}
-                onPress={() => setFilterModalVisible(false)} // Close modal
+                onPress={() => setFilterModalVisible(false)} // Close filter modal after applying
               >
                 <Text style={styles.buttonText}>Apply Filters</Text>
               </TouchableOpacity>

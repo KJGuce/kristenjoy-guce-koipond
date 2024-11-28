@@ -228,6 +228,15 @@ export default function AlmsScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
+            {/* Close Icon */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setFilterModalVisible(false)}
+            >
+              <MaterialIcons name="close" size={28} color="black" />
+            </TouchableOpacity>
+
+            {/* Modal Title */}
             <Text style={styles.modalTitle}>Filter Alms</Text>
 
             {/* Category Filter */}
