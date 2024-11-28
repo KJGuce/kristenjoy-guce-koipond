@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Image, FlatList, TouchableOpacity } from "react-native";
+import { View, Image, FlatList, TouchableOpacity, Text } from "react-native";
 import { ThemedText } from "@/src/components/ThemedText";
 import { ThemedView } from "@/src/components/ThemedView";
 import { Alm } from "../../lib/types";
@@ -72,11 +72,10 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
     );
   }
 
-  // Main UI rendering
-  return (
-    <ThemedView style={styles.almsDetailsContainer}>
-      <BackAction></BackAction>
+  const renderHeader = () => (
+    <ThemedView>
       {/* Alm Details Section */}
+      <BackAction />
       <ThemedView style={styles.almsDetailsCard}>
         <Image
           source={{ uri: alm.image_url }}
@@ -89,39 +88,39 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
           {alm.description}
         </ThemedText>
         <ThemedText style={styles.almsDetailsCardDetails}>
-          Quantity: {alm.quantity} | Location: {alm.location} | Condition:{" "}
-          {alm.condition}
+          <Text style={{ fontWeight: "bold" }}>Quantity:</Text> {alm.quantity} |{" "}
+          <Text style={{ fontWeight: "bold" }}>Location:</Text> {alm.location} |{" "}
+          <Text style={{ fontWeight: "bold" }}>Condition:</Text> {alm.condition}
         </ThemedText>
       </ThemedView>
 
-      {/* Remaining Alms Section */}
-      <ThemedView style={styles.almsRemainingAlmsContainer}>
-        <ThemedText type="subtitle" style={styles.almsRemainingTitle}>
-          Other Alms
-        </ThemedText>
-        <FlatList
-          data={remainingAlms}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("AlmsDetailsScreen", { almId: item.id })
-              }
-            >
-              <ThemedView style={styles.card}>
-                <Image
-                  source={{ uri: item.image_url }}
-                  style={styles.cardImage}
-                />
-                <ThemedText type="subtitle" style={styles.cardTitle}>
-                  {item.name}
-                </ThemedText>
-              </ThemedView>
-            </TouchableOpacity>
-          )}
-        />
-      </ThemedView>
+      {/* Title for Remaining Alms */}
+      <ThemedText type="subtitle" style={styles.almsRemainingTitle}>
+        Other Alms
+      </ThemedText>
     </ThemedView>
+  );
+
+  return (
+    <FlatList
+      data={remainingAlms}
+      keyExtractor={(item) => item.id.toString()}
+      ListHeaderComponent={renderHeader} // Render Alm Details as the header
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("AlmsDetailsScreen", { almId: item.id })
+          }
+        >
+          <ThemedView style={styles.card}>
+            <Image source={{ uri: item.image_url }} style={styles.cardImage} />
+            <ThemedText type="subtitle" style={styles.cardTitle}>
+              {item.name}
+            </ThemedText>
+          </ThemedView>
+        </TouchableOpacity>
+      )}
+    />
   );
 }
 

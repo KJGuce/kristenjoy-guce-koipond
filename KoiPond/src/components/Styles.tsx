@@ -414,4 +414,7 @@ export const styles = StyleSheet.create({
     marginTop: 20, // Add some space from the filter inputs
     width: "100%", // Take up full width of the modal
   },
+  redText: {
+    color: "red",
+  },
 });

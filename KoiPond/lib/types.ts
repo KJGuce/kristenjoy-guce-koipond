@@ -25,7 +25,8 @@ export interface Act {
   user_id: number; // ID of the user associated with the act
   created_at: string; // Timestamp when the act was created
   updated_at: string;
-  location: string; // Timestamp when the act was last updated
+  location: string;
+  police_check_required: boolean; // Timestamp when the act was last updated
 }
 
 // App.tsx
