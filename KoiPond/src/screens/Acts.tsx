@@ -7,29 +7,36 @@ import {
   Modal,
   Text,
   Alert,
+  ScrollView,
+  StyleSheet,
 } from "react-native";
 import { ThemedText } from "@/src/components/ThemedText";
 import { ThemedView } from "@/src/components/ThemedView";
-import { getAllOpportunities } from "../../lib/api"; // Update API call to fetch acts
-import { Act } from "../../lib/types"; // Replace with Act type
-import { styles } from "../components/Styles";
+import { getAllOpportunities } from "../../lib/api";
+import { Act } from "../../lib/types";
+import { styles as externalStyles } from "../components/Styles";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../lib/types";
-import SearchInput from "../components/SearchInput"; // Import the SearchInput component
-import RNPickerSelect from "react-native-picker-select"; // Import the picker component
+import SearchInput from "../components/SearchInput";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function ActsScreen() {
   const [acts, setActs] = useState<Act[]>([]);
-  const [filteredActs, setFilteredActs] = useState<Act[]>([]); // State to store filtered acts
+  const [filteredActs, setFilteredActs] = useState<Act[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAct, setSelectedAct] = useState<Act | null>(null); // Selected Act for modal
-  const [modalVisible, setModalVisible] = useState<boolean>(false); // Modal visibility
-  const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false); // Filter Modal visibility
-  const [searchQuery, setSearchQuery] = useState<string>(""); // Search query state
+  const [selectedAct, setSelectedAct] = useState<Act | null>(null);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null); // Category filter state
-  const [locationFilter, setLocationFilter] = useState<string | null>(null); // Location filter state
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+
+  const [showCategoryDropdown, setShowCategoryDropdown] =
+    useState<boolean>(false);
+  const [showLocationDropdown, setShowLocationDropdown] =
+    useState<boolean>(false);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -37,7 +44,7 @@ export default function ActsScreen() {
     try {
       const response = await getAllOpportunities();
       setActs(response);
-      setFilteredActs(response); // Initially, show all acts
+      setFilteredActs(response);
     } catch (error) {
       console.error("Error fetching acts:", error);
       setError("Failed to load volunteer opportunities");
@@ -53,7 +60,7 @@ export default function ActsScreen() {
   useEffect(() => {
     // Filter acts based on the search query
     if (searchQuery.trim() === "") {
-      setFilteredActs(acts); // Show all acts if search is empty
+      setFilteredActs(acts);
     } else {
       setFilteredActs(
         acts.filter(
@@ -63,34 +70,49 @@ export default function ActsScreen() {
         )
       );
     }
-  }, [searchQuery, acts]); // Re-filter when the query or acts change
+  }, [searchQuery, acts]);
 
-  // Filter acts based on selected filters (category and location)
   useEffect(() => {
     let filtered = acts;
 
-    if (categoryFilter) {
-      filtered = filtered.filter((act) => act.category === categoryFilter);
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter((act) =>
+        selectedCategories.includes(act.category)
+      );
     }
 
-    if (locationFilter) {
-      filtered = filtered.filter((act) => act.location === locationFilter);
+    if (selectedLocations.length > 0) {
+      filtered = filtered.filter((act) =>
+        selectedLocations.includes(act.location)
+      );
     }
 
     setFilteredActs(filtered);
-  }, [categoryFilter, locationFilter, acts]);
+  }, [selectedCategories, selectedLocations, acts]);
 
   const handleVolunteer = () => {
-    setModalVisible(false); // Close the modal
+    setModalVisible(false);
     Alert.alert(
       "Volunteer Confirmation",
       "You have successfully signed up to volunteer for this act. The poster of this act has been notified."
     );
   };
 
+  const handleCheckboxChange = (
+    item: string,
+    selectedItems: string[],
+    setSelectedItems: (value: string[]) => void
+  ) => {
+    if (selectedItems.includes(item)) {
+      setSelectedItems(selectedItems.filter((i) => i !== item));
+    } else {
+      setSelectedItems([...selectedItems, item]);
+    }
+  };
+
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={externalStyles.loadingContainer}>
         <ThemedText>Loading...</ThemedText>
       </View>
     );
@@ -98,7 +120,7 @@ export default function ActsScreen() {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
+      <View style={externalStyles.errorContainer}>
         <ThemedText>{error}</ThemedText>
       </View>
     );
@@ -112,25 +134,25 @@ export default function ActsScreen() {
     <View style={{ flex: 1 }}>
       <FlatList
         data={filteredActs}
-        keyExtractor={(item) => item.id.toString()} // Ensure `item.id` is stringified
+        keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={
           <View>
-            <ThemedView style={styles.titleContainer}>
+            <ThemedView style={externalStyles.titleContainer}>
               <ThemedText type="title">Available Acts</ThemedText>
             </ThemedView>
 
-            {/* SearchInput added below the title */}
             <SearchInput
-              placeholder="Search all alms and acts" // Placeholder text
-              onChangeText={(text) => setSearchQuery(text)} // Update search query
+              placeholder="Search all acts"
+              onChangeText={(text) => setSearchQuery(text)}
             />
 
-            {/* Filter Button */}
             <TouchableOpacity
-              style={styles.filterButton}
-              onPress={() => setFilterModalVisible(true)} // Open filter modal
+              style={externalStyles.filterButton}
+              onPress={() => setFilterModalVisible(true)}
             >
-              <ThemedText style={styles.filterButtonText}>Filter</ThemedText>
+              <ThemedText style={externalStyles.filterButtonText}>
+                Filter
+              </ThemedText>
             </TouchableOpacity>
           </View>
         }
@@ -140,39 +162,36 @@ export default function ActsScreen() {
               navigation.navigate("ActsDetailsScreen", { actId: item.id })
             }
           >
-            <ThemedView style={styles.card}>
-              <View style={styles.cardContent}>
-                {/* Placeholder User Icon */}
+            <ThemedView style={externalStyles.card}>
+              <View style={externalStyles.cardContent}>
                 <Image
-                  source={require("../../assets/images/5856.jpg")} // Replace with your placeholder user image path
-                  style={styles.userIcon}
+                  source={require("../../assets/images/5856.jpg")}
+                  style={externalStyles.userIcon}
                 />
-                <View style={styles.textContent}>
-                  {/* Act Details */}
-                  <ThemedText type="subtitle" style={styles.cardTitle}>
+                <View style={externalStyles.textContent}>
+                  <ThemedText type="subtitle" style={externalStyles.cardTitle}>
                     {item.title}
                   </ThemedText>
-                  <ThemedText style={styles.cardDescription}>
+                  <ThemedText style={externalStyles.cardDescription}>
                     {item.description}
                   </ThemedText>
                 </View>
               </View>
 
-              {/* Volunteer Button */}
               <TouchableOpacity
-                style={styles.volunteerButton}
+                style={externalStyles.volunteerButton}
                 onPress={(event) => {
-                  event.stopPropagation(); // Prevent triggering the card navigation
-                  setSelectedAct(item); // Set selected act
-                  setModalVisible(true); // Open modal
+                  event.stopPropagation();
+                  setSelectedAct(item);
+                  setModalVisible(true);
                 }}
               >
-                <Text style={styles.buttonText}>Volunteer</Text>
+                <Text style={externalStyles.buttonText}>Volunteer</Text>
               </TouchableOpacity>
             </ThemedView>
           </TouchableOpacity>
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={externalStyles.listContent}
       />
 
       {/* Modal for Volunteer Confirmation */}
@@ -180,28 +199,28 @@ export default function ActsScreen() {
         transparent={true}
         animationType="slide"
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)} // Handle back button
+        onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
+        <View style={externalStyles.modalOverlay}>
+          <View style={externalStyles.modalContainer}>
+            <Text style={externalStyles.modalTitle}>
               Do you wish to volunteer for this act?
             </Text>
-            <Text style={styles.modalDescription}>
+            <Text style={externalStyles.modalDescription}>
               {selectedAct?.title} - {selectedAct?.description}
             </Text>
-            <View style={styles.modalButtonContainer}>
+            <View style={externalStyles.modalButtonContainer}>
               <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
+                style={[externalStyles.button, externalStyles.cancelButton]}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.buttonText}>Cancel</Text>
+                <Text style={externalStyles.buttonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, styles.postButton]}
-                onPress={handleVolunteer} // Handle confirmation
+                style={[externalStyles.button, externalStyles.postButton]}
+                onPress={handleVolunteer}
               >
-                <Text style={styles.buttonText}>Confirm</Text>
+                <Text style={externalStyles.buttonText}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -213,66 +232,173 @@ export default function ActsScreen() {
         transparent={true}
         animationType="slide"
         visible={filterModalVisible}
-        onRequestClose={() => setFilterModalVisible(false)} // Handle back button
+        onRequestClose={() => setFilterModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Filter Acts</Text>
-
-            {/* Close Button */}
+        <ScrollView contentContainerStyle={externalStyles.modalOverlay}>
+          <View
+            style={[externalStyles.modalContainer, { paddingHorizontal: 20 }]}
+          >
             <TouchableOpacity
-              style={styles.closeButton} // Add a custom style for close button
-              onPress={() => setFilterModalVisible(false)} // Close the filter modal
+              style={externalStyles.closeButton}
+              onPress={() => setFilterModalVisible(false)}
             >
-              <Text style={styles.buttonText}>X</Text>
+              <MaterialIcons name="close" size={28} color="black" />
             </TouchableOpacity>
 
+            <Text style={externalStyles.modalTitle}>Filter Acts</Text>
+
             {/* Category Filter */}
-            <Text style={styles.modalLabel}>Category</Text>
-            <RNPickerSelect
-              onValueChange={(value) => setCategoryFilter(value)}
-              items={categories.map((category) => ({
-                label: category,
-                value: category,
-              }))}
-              placeholder={{ label: "Select a category", value: null }}
-              value={categoryFilter}
-            />
+            <TouchableOpacity
+              onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+            >
+              <Text style={externalStyles.filterLabel}>
+                Category {showCategoryDropdown ? "▲" : "▼"}
+              </Text>
+            </TouchableOpacity>
+            {showCategoryDropdown &&
+              categories.map((category) => (
+                <View key={category} style={externalStyles.checkboxContainer}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleCheckboxChange(
+                        category,
+                        selectedCategories,
+                        setSelectedCategories
+                      )
+                    }
+                  >
+                    <MaterialIcons
+                      name={
+                        selectedCategories.includes(category)
+                          ? "check-box"
+                          : "check-box-outline-blank"
+                      }
+                      size={24}
+                      color="#F58216"
+                    />
+                  </TouchableOpacity>
+                  <Text style={externalStyles.checkboxLabel}>{category}</Text>
+                </View>
+              ))}
 
             {/* Location Filter */}
-            <Text style={styles.modalLabel}>Location</Text>
-            <RNPickerSelect
-              onValueChange={(value) => setLocationFilter(value)}
-              items={locations.map((location) => ({
-                label: location,
-                value: location,
-              }))}
-              placeholder={{ label: "Select a location", value: null }}
-              value={locationFilter}
-            />
+            <TouchableOpacity
+              onPress={() => setShowLocationDropdown(!showLocationDropdown)}
+            >
+              <Text style={externalStyles.filterLabel}>
+                Location {showLocationDropdown ? "▲" : "▼"}
+              </Text>
+            </TouchableOpacity>
+            {showLocationDropdown &&
+              locations.map((location) => (
+                <View key={location} style={externalStyles.checkboxContainer}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleCheckboxChange(
+                        location,
+                        selectedLocations,
+                        setSelectedLocations
+                      )
+                    }
+                  >
+                    <MaterialIcons
+                      name={
+                        selectedLocations.includes(location)
+                          ? "check-box"
+                          : "check-box-outline-blank"
+                      }
+                      size={24}
+                      color="#F58216"
+                    />
+                  </TouchableOpacity>
+                  <Text style={externalStyles.checkboxLabel}>{location}</Text>
+                </View>
+              ))}
 
             {/* Buttons */}
-            <View style={styles.modalButtonContainer}>
+            <View style={externalStyles.modalButtonContainer}>
               <TouchableOpacity
-                style={[styles.button, styles.clearButton]}
+                style={[externalStyles.button, externalStyles.clearButton]}
                 onPress={() => {
-                  setCategoryFilter(null);
-                  setLocationFilter(null);
+                  setSelectedCategories([]);
+                  setSelectedLocations([]);
+                  setFilterModalVisible(false);
                 }}
               >
-                <Text style={styles.buttonText}>Clear Filters</Text>
+                <Text style={externalStyles.buttonText}>Clear Filters</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.button, styles.applyButton]}
-                onPress={() => setFilterModalVisible(false)} // Close filter modal after applying
+                style={[externalStyles.button, externalStyles.applyButton]}
+                onPress={() => setFilterModalVisible(false)}
               >
-                <Text style={styles.buttonText}>Apply Filters</Text>
+                <Text style={externalStyles.buttonText}>Apply Filters</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </ScrollView>
       </Modal>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  filterLabel: {
+    marginVertical: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  clearButton: {
+    backgroundColor: "#ccc",
+  },
+  applyButton: {
+    backgroundColor: "#F58216",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#121212",
+    marginBottom: 10,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
+});

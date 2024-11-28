@@ -8,17 +8,17 @@ import {
   Modal,
   Text,
   Alert,
+  ScrollView,
 } from "react-native";
-import RNPickerSelect from "react-native-picker-select"; // Import the picker component
 import { ThemedText } from "@/src/components/ThemedText";
 import { ThemedView } from "@/src/components/ThemedView";
 import { getAllResources } from "../../lib/api";
 import { Alm } from "../../lib/types";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../lib/types";
-import { MaterialIcons } from "@expo/vector-icons"; // Import MaterialIcons
-import { styles } from "../components/Styles";
-import SearchInput from "../components/SearchInput"; // Import the existing SearchInput component
+import { MaterialIcons } from "@expo/vector-icons";
+import { styles as externalStyles } from "../components/Styles";
+import SearchInput from "../components/SearchInput";
 
 export default function AlmsScreen() {
   const [resources, setResources] = useState<Alm[]>([]);
@@ -26,13 +26,20 @@ export default function AlmsScreen() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedAlm, setSelectedAlm] = useState<Alm | null>(null);
-  const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false); // Modal visibility state
-  const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false); // Claim confirmation modal visibility state
+  const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false);
+  const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [locationFilter, setLocationFilter] = useState<string | null>(null);
-  const [conditionFilter, setConditionFilter] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+
+  const [showCategoryDropdown, setShowCategoryDropdown] =
+    useState<boolean>(false);
+  const [showLocationDropdown, setShowLocationDropdown] =
+    useState<boolean>(false);
+  const [showConditionDropdown, setShowConditionDropdown] =
+    useState<boolean>(false);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -72,32 +79,50 @@ export default function AlmsScreen() {
   useEffect(() => {
     let filtered = resources;
 
-    if (categoryFilter) {
-      filtered = filtered.filter((alm) => alm.category === categoryFilter);
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter((alm) =>
+        selectedCategories.includes(alm.category)
+      );
     }
 
-    if (locationFilter) {
-      filtered = filtered.filter((alm) => alm.location === locationFilter);
+    if (selectedLocations.length > 0) {
+      filtered = filtered.filter((alm) =>
+        selectedLocations.includes(alm.location)
+      );
     }
 
-    if (conditionFilter) {
-      filtered = filtered.filter((alm) => alm.condition === conditionFilter);
+    if (selectedConditions.length > 0) {
+      filtered = filtered.filter((alm) =>
+        selectedConditions.includes(alm.condition)
+      );
     }
 
     setFilteredResources(filtered);
-  }, [categoryFilter, locationFilter, conditionFilter, resources]);
+  }, [selectedCategories, selectedLocations, selectedConditions, resources]);
 
   const handleClaimAlm = () => {
-    setClaimModalVisible(false); // Close modal after claim
+    setClaimModalVisible(false);
     Alert.alert(
       "Claim Submitted",
       "The poster of this item has been notified."
     );
   };
 
+  const handleCheckboxChange = (
+    item: string,
+    selectedItems: string[],
+    setSelectedItems: (value: string[]) => void
+  ) => {
+    if (selectedItems.includes(item)) {
+      setSelectedItems(selectedItems.filter((i) => i !== item));
+    } else {
+      setSelectedItems([...selectedItems, item]);
+    }
+  };
+
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={externalStyles.loadingContainer}>
         <ThemedText>Loading...</ThemedText>
       </View>
     );
@@ -105,7 +130,7 @@ export default function AlmsScreen() {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
+      <View style={externalStyles.errorContainer}>
         <ThemedText>{error}</ThemedText>
       </View>
     );
@@ -131,15 +156,16 @@ export default function AlmsScreen() {
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={
           <View>
-            <ThemedView style={styles.titleContainer}>
+            <ThemedView style={externalStyles.titleContainer}>
               <ThemedText type="title">Available Alms</ThemedText>
             </ThemedView>
-            {/* Filter Button */}
             <TouchableOpacity
-              style={styles.filterButton}
+              style={externalStyles.filterButton}
               onPress={() => setFilterModalVisible(true)}
             >
-              <ThemedText style={styles.filterButtonText}>Filter</ThemedText>
+              <ThemedText style={externalStyles.filterButtonText}>
+                Filter
+              </ThemedText>
             </TouchableOpacity>
           </View>
         }
@@ -149,29 +175,29 @@ export default function AlmsScreen() {
               navigation.navigate("AlmsDetailsScreen", { almId: item.id });
             }}
           >
-            <ThemedView style={styles.card}>
+            <ThemedView style={externalStyles.card}>
               <Image
                 source={{ uri: item.image_url }}
-                style={styles.cardImage}
+                style={externalStyles.cardImage}
                 onError={(error) =>
                   console.log("Error loading image:", error.nativeEvent.error)
                 }
               />
-              <ThemedText type="subtitle" style={styles.cardTitle}>
+              <ThemedText type="subtitle" style={externalStyles.cardTitle}>
                 {item.name}
               </ThemedText>
-              <ThemedText style={styles.cardDescription}>
+              <ThemedText style={externalStyles.cardDescription}>
                 {item.description}
               </ThemedText>
-              <ThemedText style={styles.cardDetails}>
+              <ThemedText style={externalStyles.cardDetails}>
                 Quantity: {item.quantity} | Location: {item.location}
               </ThemedText>
 
               <TouchableOpacity
-                style={styles.iconContainer}
+                style={externalStyles.iconContainer}
                 onPress={() => {
                   setSelectedAlm(item);
-                  setClaimModalVisible(true); // Open the claim confirmation modal
+                  setClaimModalVisible(true);
                 }}
               >
                 <MaterialIcons
@@ -183,7 +209,7 @@ export default function AlmsScreen() {
             </ThemedView>
           </TouchableOpacity>
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={externalStyles.listContent}
       />
 
       {/* Claim Confirmation Modal */}
@@ -193,26 +219,22 @@ export default function AlmsScreen() {
         visible={claimModalVisible}
         onRequestClose={() => setClaimModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Claim Alm</Text>
-
-            {/* Buttons */}
-            <View style={styles.modalButtonContainer}>
-              {/* Cancel Button */}
+        <View style={externalStyles.modalOverlay}>
+          <View style={externalStyles.modalContainer}>
+            <Text style={externalStyles.modalTitle}>Claim Alm</Text>
+            <View style={externalStyles.modalButtonContainer}>
               <TouchableOpacity
-                style={[styles.button, styles.clearButton]}
+                style={[externalStyles.button, externalStyles.clearButton]}
                 onPress={() => setClaimModalVisible(false)}
               >
-                <Text style={styles.buttonText}>Cancel</Text>
+                <Text style={externalStyles.buttonText}>Cancel</Text>
               </TouchableOpacity>
 
-              {/* Confirm Button */}
               <TouchableOpacity
-                style={[styles.button, styles.applyButton]}
+                style={[externalStyles.button, externalStyles.applyButton]}
                 onPress={handleClaimAlm}
               >
-                <Text style={styles.buttonText}>Confirm</Text>
+                <Text style={externalStyles.buttonText}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -226,8 +248,8 @@ export default function AlmsScreen() {
         visible={filterModalVisible}
         onRequestClose={() => setFilterModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+        <ScrollView contentContainerStyle={styles.modalOverlay}>
+          <View style={[styles.modalContainer, { paddingHorizontal: 20 }]}>
             {/* Close Icon */}
             <TouchableOpacity
               style={styles.closeButton}
@@ -240,57 +262,121 @@ export default function AlmsScreen() {
             <Text style={styles.modalTitle}>Filter Alms</Text>
 
             {/* Category Filter */}
-            <Text style={styles.modalLabel}>Category</Text>
-            <RNPickerSelect
-              onValueChange={(value) => setCategoryFilter(value)}
-              items={categories.map((category) => ({
-                label: category,
-                value: category,
-              }))}
-              placeholder={{ label: "Select a category", value: null }}
-              value={categoryFilter}
-            />
+            <TouchableOpacity
+              onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+            >
+              <Text style={styles.filterLabel}>
+                Category {showCategoryDropdown ? "▲" : "▼"}
+              </Text>
+            </TouchableOpacity>
+            {showCategoryDropdown &&
+              categories.map((category) => (
+                <View key={category} style={styles.checkboxContainer}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleCheckboxChange(
+                        category,
+                        selectedCategories,
+                        setSelectedCategories
+                      )
+                    }
+                  >
+                    <MaterialIcons
+                      name={
+                        selectedCategories.includes(category)
+                          ? "check-box"
+                          : "check-box-outline-blank"
+                      }
+                      size={24}
+                      color="#F58216"
+                    />
+                  </TouchableOpacity>
+                  <Text style={styles.checkboxLabel}>{category}</Text>
+                </View>
+              ))}
 
             {/* Location Filter */}
-            <Text style={styles.modalLabel}>Location</Text>
-            <RNPickerSelect
-              onValueChange={(value) => setLocationFilter(value)}
-              items={locations.map((location) => ({
-                label: location,
-                value: location,
-              }))}
-              placeholder={{ label: "Select a location", value: null }}
-              value={locationFilter}
-            />
+            <TouchableOpacity
+              onPress={() => setShowLocationDropdown(!showLocationDropdown)}
+            >
+              <Text style={styles.filterLabel}>
+                Location {showLocationDropdown ? "▲" : "▼"}
+              </Text>
+            </TouchableOpacity>
+            {showLocationDropdown &&
+              locations.map((location) => (
+                <View key={location} style={styles.checkboxContainer}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleCheckboxChange(
+                        location,
+                        selectedLocations,
+                        setSelectedLocations
+                      )
+                    }
+                  >
+                    <MaterialIcons
+                      name={
+                        selectedLocations.includes(location)
+                          ? "check-box"
+                          : "check-box-outline-blank"
+                      }
+                      size={24}
+                      color="#F58216"
+                    />
+                  </TouchableOpacity>
+                  <Text style={styles.checkboxLabel}>{location}</Text>
+                </View>
+              ))}
 
             {/* Condition Filter */}
-            <Text style={styles.modalLabel}>Condition</Text>
-            <RNPickerSelect
-              onValueChange={(value) => setConditionFilter(value)}
-              items={conditions.map((condition) => ({
-                label: condition,
-                value: condition,
-              }))}
-              placeholder={{ label: "Select a condition", value: null }}
-              value={conditionFilter}
-            />
+            <TouchableOpacity
+              onPress={() => setShowConditionDropdown(!showConditionDropdown)}
+            >
+              <Text style={styles.filterLabel}>
+                Condition {showConditionDropdown ? "▲" : "▼"}
+              </Text>
+            </TouchableOpacity>
+            {showConditionDropdown &&
+              conditions.map((condition) => (
+                <View key={condition} style={styles.checkboxContainer}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleCheckboxChange(
+                        condition,
+                        selectedConditions,
+                        setSelectedConditions
+                      )
+                    }
+                  >
+                    <MaterialIcons
+                      name={
+                        selectedConditions.includes(condition)
+                          ? "check-box"
+                          : "check-box-outline-blank"
+                      }
+                      size={24}
+                      color="#F58216"
+                    />
+                  </TouchableOpacity>
+                  <Text style={styles.checkboxLabel}>{condition}</Text>
+                </View>
+              ))}
 
             {/* Buttons */}
             <View style={styles.modalButtonContainer}>
-              {/* Clear Filters Button */}
               <TouchableOpacity
                 style={[styles.button, styles.clearButton]}
                 onPress={() => {
-                  setCategoryFilter(null);
-                  setLocationFilter(null);
-                  setConditionFilter(null);
+                  setSelectedCategories([]);
+                  setSelectedLocations([]);
+                  setSelectedConditions([]);
                   setFilterModalVisible(false);
                 }}
               >
                 <Text style={styles.buttonText}>Clear Filters</Text>
               </TouchableOpacity>
 
-              {/* Apply Filters Button */}
               <TouchableOpacity
                 style={[styles.button, styles.applyButton]}
                 onPress={() => setFilterModalVisible(false)}
@@ -299,8 +385,70 @@ export default function AlmsScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </ScrollView>
       </Modal>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  filterLabel: {
+    marginVertical: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  clearButton: {
+    backgroundColor: "#ccc",
+  },
+  applyButton: {
+    backgroundColor: "#F58216",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#121212",
+    marginBottom: 10,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1, // Ensure the close button is above other content
+  },
+});

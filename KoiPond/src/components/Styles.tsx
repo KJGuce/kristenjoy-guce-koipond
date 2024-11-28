@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
@@ -210,7 +210,7 @@ export const styles = StyleSheet.create({
     width: "80%",
     backgroundColor: "#fff",
     borderRadius: 10,
-    padding: 20,
+    padding: Platform.OS === "ios" ? 20 : 10,
     alignItems: "center",
     elevation: 5,
   },
@@ -428,5 +428,47 @@ export const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  inputIOS: {
+    height: 40,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#cccccc",
+    borderRadius: 5,
+    color: "black", // Text color
+    backgroundColor: "white", // Background color
+    marginVertical: 10,
+  },
+  inputAndroid: {
+    height: 40,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#cccccc",
+    borderRadius: 5,
+    color: "black",
+    backgroundColor: "white",
+    marginVertical: 10,
+  },
+  filterContainer: {
+    padding: 10,
+  },
+  filterLabel: {
+    marginBottom: 5,
+  },
+  dropdown: {
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    fontSize: 16,
   },
 });
