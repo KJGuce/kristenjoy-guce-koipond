@@ -6,12 +6,18 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  StyleSheet,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker"; // For dropdowns
-import { StackNavigationProp } from "@react-navigation/stack"; // For navigation typing
-import { RootStackParamList } from "../../lib/types"; // Import your param list for typing
+import { Dropdown } from "react-native-element-dropdown";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../lib/types";
 
-// Define the type for PostActScreen navigation prop
 type PostActScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   "PostActScreen"
@@ -24,28 +30,41 @@ interface PostActScreenProps {
 const PostActScreen: React.FC<PostActScreenProps> = ({ navigation }) => {
   // State variables for form inputs
   const [actName, setActName] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [location, setLocation] = useState("");
-  const [category, setCategory] = useState("Community");
+  const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [policeCheckRequired, setPoliceCheckRequired] = useState("No");
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
   // Dropdown options
-  const categoryOptions = ["Community", "Environmental", "Health", "Other"];
-  const policeCheckOptions = ["Yes", "No"];
+  const categoryOptions = [
+    { label: "Community", value: "Community" },
+    { label: "Environmental", value: "Environmental" },
+    { label: "Health", value: "Health" },
+    { label: "Other", value: "Other" },
+  ];
 
   // Handle form submission
   const handleSubmit = () => {
-    if (!actName || !startDate || !endDate || !location || !description) {
+    if (
+      !actName ||
+      !startDate ||
+      !endDate ||
+      !location ||
+      !description ||
+      !category
+    ) {
       Alert.alert("Error", "Please fill in all required fields.");
       return;
     }
 
     const newAct = {
       actName,
-      startDate,
-      endDate,
+      startDate: startDate?.toISOString().split("T")[0], // Format as YYYY-MM-DD
+      endDate: endDate?.toISOString().split("T")[0],
       location,
       category,
       description,
@@ -57,129 +76,300 @@ const PostActScreen: React.FC<PostActScreenProps> = ({ navigation }) => {
 
     // Reset form after submission
     setActName("");
-    setStartDate("");
-    setEndDate("");
+    setStartDate(null);
+    setEndDate(null);
     setLocation("");
-    setCategory("Community");
+    setCategory("");
     setDescription("");
     setPoliceCheckRequired("No");
 
-    // Optionally navigate to a different screen
-    navigation.navigate("HomeScreen"); // or any other screen in your stack
+    navigation.navigate("HomeScreen"); // Navigate after submission
   };
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
-      {/* Act Name */}
-      <Text>Act Name</Text>
-      <TextInput
-        style={{
-          height: 40,
-          borderColor: "gray",
-          borderWidth: 1,
-          marginBottom: 12,
-        }}
-        value={actName}
-        onChangeText={setActName}
-        placeholder="Enter act name"
-      />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={80} // Adjust for bottom tabs
+    >
+      <SafeAreaView style={{ flex: 1 }}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView
+            contentContainerStyle={[styles.container, { paddingBottom: 150 }]}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.formContainer}>
+              <Text style={styles.label}>
+                Act Name <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                value={actName}
+                onChangeText={setActName}
+                placeholder="Enter act name"
+                placeholderTextColor="#888"
+              />
 
-      {/* Start Date */}
-      <Text>Start Date</Text>
-      <TextInput
-        style={{
-          height: 40,
-          borderColor: "gray",
-          borderWidth: 1,
-          marginBottom: 12,
-        }}
-        value={startDate}
-        onChangeText={setStartDate}
-        placeholder="Enter start date"
-      />
+              <Text style={styles.label}>
+                Start Date <Text style={styles.required}>*</Text>
+              </Text>
+              <TouchableOpacity
+                style={styles.datePicker}
+                onPress={() => setShowStartDatePicker(true)}
+              >
+                <Text style={styles.datePickerText}>
+                  {startDate
+                    ? startDate.toISOString().split("T")[0]
+                    : "Select start date"}
+                </Text>
+              </TouchableOpacity>
+              {showStartDatePicker && (
+                <DateTimePicker
+                  value={startDate || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={(event, date) => {
+                    setShowStartDatePicker(false);
+                    if (date) setStartDate(date);
+                  }}
+                />
+              )}
 
-      {/* End Date */}
-      <Text>End Date</Text>
-      <TextInput
-        style={{
-          height: 40,
-          borderColor: "gray",
-          borderWidth: 1,
-          marginBottom: 12,
-        }}
-        value={endDate}
-        onChangeText={setEndDate}
-        placeholder="Enter end date"
-      />
+              <Text style={styles.label}>
+                End Date <Text style={styles.required}>*</Text>
+              </Text>
+              <TouchableOpacity
+                style={styles.datePicker}
+                onPress={() => setShowEndDatePicker(true)}
+              >
+                <Text style={styles.datePickerText}>
+                  {endDate
+                    ? endDate.toISOString().split("T")[0]
+                    : "Select end date"}
+                </Text>
+              </TouchableOpacity>
+              {showEndDatePicker && (
+                <DateTimePicker
+                  value={endDate || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={(event, date) => {
+                    setShowEndDatePicker(false);
+                    if (date) setEndDate(date);
+                  }}
+                />
+              )}
 
-      {/* Location */}
-      <Text>Location</Text>
-      <TextInput
-        style={{
-          height: 40,
-          borderColor: "gray",
-          borderWidth: 1,
-          marginBottom: 12,
-        }}
-        value={location}
-        onChangeText={setLocation}
-        placeholder="Enter location"
-      />
+              <Text style={styles.label}>
+                Location <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                value={location}
+                onChangeText={setLocation}
+                placeholder="Enter location"
+                placeholderTextColor="#888"
+              />
 
-      {/* Category */}
-      <Text>Category</Text>
-      <Picker
-        selectedValue={category}
-        onValueChange={(itemValue) => setCategory(itemValue)}
-        style={{ height: 50, marginBottom: 12 }}
-      >
-        {categoryOptions.map((option) => (
-          <Picker.Item key={option} label={option} value={option} />
-        ))}
-      </Picker>
+              <Text style={styles.label}>
+                Category <Text style={styles.required}>*</Text>
+              </Text>
+              <Dropdown
+                data={categoryOptions}
+                labelField="label"
+                valueField="value"
+                placeholder="Select Category"
+                value={category}
+                onChange={(item) => setCategory(item.value)}
+                style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+              />
 
-      {/* Description */}
-      <Text>Description</Text>
-      <TextInput
-        style={{
-          height: 80,
-          borderColor: "gray",
-          borderWidth: 1,
-          marginBottom: 12,
-          textAlignVertical: "top",
-        }}
-        value={description}
-        onChangeText={setDescription}
-        placeholder="Enter description"
-        multiline
-      />
+              <Text style={styles.label}>
+                Description <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Enter description"
+                placeholderTextColor="#888"
+                multiline
+                numberOfLines={4}
+              />
 
-      {/* Police Check Required */}
-      <Text>Police Check Required</Text>
-      <Picker
-        selectedValue={policeCheckRequired}
-        onValueChange={(itemValue) => setPoliceCheckRequired(itemValue)}
-        style={{ height: 50, marginBottom: 12 }}
-      >
-        {policeCheckOptions.map((option) => (
-          <Picker.Item key={option} label={option} value={option} />
-        ))}
-      </Picker>
-
-      {/* Submit Button */}
-      <TouchableOpacity
-        style={{
-          backgroundColor: "#46B3A5",
-          padding: 12,
-          borderRadius: 8,
-          alignItems: "center",
-        }}
-        onPress={handleSubmit}
-      >
-        <Text style={{ color: "#fff", fontWeight: "bold" }}>Post New Act</Text>
-      </TouchableOpacity>
-    </ScrollView>
+              <Text style={styles.label}>Police Check Required</Text>
+              <View style={styles.radioContainer}>
+                <TouchableOpacity
+                  style={styles.radioButton}
+                  onPress={() => setPoliceCheckRequired("Yes")}
+                >
+                  <View
+                    style={[
+                      styles.radioCircle,
+                      policeCheckRequired === "Yes" && styles.radioSelected,
+                    ]}
+                  />
+                  <Text style={styles.radioText}>Yes</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.radioButton}
+                  onPress={() => setPoliceCheckRequired("No")}
+                >
+                  <View
+                    style={[
+                      styles.radioCircle,
+                      policeCheckRequired === "No" && styles.radioSelected,
+                    ]}
+                  />
+                  <Text style={styles.radioText}>No</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </TouchableWithoutFeedback>
+        {/* Fixed Footer for Buttons */}
+        <View style={styles.footerContainer}>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={() => {
+              setActName("");
+              setStartDate(null);
+              setEndDate(null);
+              setLocation("");
+              setCategory("");
+              setDescription("");
+              setPoliceCheckRequired("No");
+              navigation.goBack();
+            }}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.postButton]}
+            onPress={handleSubmit}
+          >
+            <Text style={styles.buttonText}>Post New Act</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
 export default PostActScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    padding: 20,
+  },
+  formContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
+  required: {
+    color: "red",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: "#fff",
+    marginBottom: 15,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "#fff",
+  },
+  placeholderStyle: {
+    color: "#888",
+  },
+  selectedTextStyle: {
+    color: "#333",
+  },
+  radioContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  radioButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 20,
+  },
+  radioCircle: {
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#333",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+  radioSelected: {
+    backgroundColor: "#46B3A5",
+  },
+  radioText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  datePicker: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: "#fff",
+    marginBottom: 15,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  footerContainer: {
+    position: "absolute",
+    bottom: 80,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 20,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "#ccc",
+    marginRight: 10,
+  },
+  postButton: {
+    backgroundColor: "#46B3A5",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+});

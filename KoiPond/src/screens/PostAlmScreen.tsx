@@ -12,11 +12,12 @@ import {
   SafeAreaView,
   Keyboard,
   TouchableWithoutFeedback,
+  StyleSheet,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Picker } from "@react-native-picker/picker";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { styles } from "../components/Styles"; // Assuming you have a separate styles file
+import { Dropdown } from "react-native-element-dropdown";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const PostAlmScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -24,30 +25,29 @@ const PostAlmScreen: React.FC = () => {
   // State variables for form inputs
   const [almName, setAlmName] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [condition, setCondition] = useState("New");
+  const [condition, setCondition] = useState<string>("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("Clothing");
+  const [category, setCategory] = useState<string>("");
   const [images, setImages] = useState<string[]>([]);
 
   // Dropdown options
-  const conditionOptions = ["New", "Used", "Damaged"];
-  const categoryOptions = [
-    "Clothing",
-    "Food",
-    "Furniture",
-    "Electronics",
-    "Other",
+  const conditionOptions = [
+    { label: "New", value: "New" },
+    { label: "Used", value: "Used" },
+    { label: "Damaged", value: "Damaged" },
   ];
 
-  // Show condition and category pickers only when clicked
-  const [showConditionPicker, setShowConditionPicker] = useState(false);
-  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+  const categoryOptions = [
+    { label: "Clothing", value: "Clothing" },
+    { label: "Food", value: "Food" },
+    { label: "Furniture", value: "Furniture" },
+    { label: "Electronics", value: "Electronics" },
+    { label: "Other", value: "Other" },
+  ];
 
-  // Flag to track if the user is interacting with the form
   const [isUserActive, setIsUserActive] = useState(false);
 
-  // Request permissions for media library
   useEffect(() => {
     (async () => {
       if (Platform.OS !== "web") {
@@ -63,10 +63,22 @@ const PostAlmScreen: React.FC = () => {
     })();
   }, []);
 
-  // Function to handle image selection
+  // Function to handle image selection from the gallery
   const handleImageUpload = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImages((prev) => [...prev, result.assets[0].uri]);
+    }
+  };
+
+  // Function to handle taking a photo using the camera
+  const handleTakePhoto = async () => {
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: "images",
       quality: 0.8,
     });
 
@@ -78,12 +90,12 @@ const PostAlmScreen: React.FC = () => {
   // Function to handle form submission
   const handleSubmit = () => {
     if (
-      !almName ||
-      !quantity ||
-      !location ||
-      !description ||
-      !category ||
-      !condition
+      !almName.trim() ||
+      !quantity.trim() ||
+      !location.trim() ||
+      !description.trim() ||
+      !category.trim() ||
+      !condition.trim()
     ) {
       Alert.alert("Error", "Please fill in all required fields.");
       return;
@@ -103,45 +115,40 @@ const PostAlmScreen: React.FC = () => {
     Alert.alert("Success", "New Alm has been posted!");
     navigation.goBack();
 
-    // Clear form fields
     setAlmName("");
     setQuantity("");
-    setCondition("New");
+    setCondition("");
     setLocation("");
     setDescription("");
-    setCategory("Clothing");
+    setCategory("");
     setImages([]);
   };
 
-  // Hide tab bar when the screen is focused
   useFocusEffect(
     useCallback(() => {
-      // Update the tabBar visibility based on user interaction
       navigation.setOptions({
         tabBarStyle: {
-          display: isUserActive ? "none" : "flex", // Hide when user is interacting
+          display: isUserActive ? "none" : "flex",
         },
       });
 
       return () => {
-        // Reset tab bar visibility when screen loses focus
         navigation.setOptions({
-          tabBarStyle: { display: "flex" }, // Show tab bar again
+          tabBarStyle: { display: "flex" },
         });
       };
-    }, [isUserActive]) // Re-run when isUserActive changes
+    }, [isUserActive])
   );
 
-  // Handle user interaction (typing or selecting from pickers)
   const handleUserInteraction = () => {
-    setIsUserActive(true); // User is interacting with the form
+    setIsUserActive(true);
   };
 
   const handleChange = (field: string, value: string) => {
     if (value) {
-      handleUserInteraction(); // Mark as active if the user types
+      handleUserInteraction();
     } else {
-      setIsUserActive(false); // Stop interaction tracking if the field is empty
+      setIsUserActive(false);
     }
 
     switch (field) {
@@ -151,17 +158,11 @@ const PostAlmScreen: React.FC = () => {
       case "quantity":
         setQuantity(value);
         break;
-      case "condition":
-        setCondition(value);
-        break;
       case "location":
         setLocation(value);
         break;
       case "description":
         setDescription(value);
-        break;
-      case "category":
-        setCategory(value);
         break;
     }
   };
@@ -174,127 +175,116 @@ const PostAlmScreen: React.FC = () => {
       <SafeAreaView style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <ScrollView
-            contentContainerStyle={[
-              styles.container,
-              { paddingBottom: 150 }, // Ensure enough space at the bottom
-            ]}
+            contentContainerStyle={styles.container}
+            showsVerticalScrollIndicator={false}
           >
-            {/* Alm Name */}
-            <Text style={styles.label}>Alm Name</Text>
-            <TextInput
-              style={styles.input}
-              value={almName}
-              onChangeText={(text) => handleChange("almName", text)}
-              placeholder="Enter the name of the Alm"
-              placeholderTextColor="#888"
-            />
-
-            {/* Quantity */}
-            <Text style={styles.label}>Quantity</Text>
-            <TextInput
-              style={styles.input}
-              value={quantity}
-              onChangeText={(text) => handleChange("quantity", text)}
-              placeholder="Enter quantity"
-              placeholderTextColor="#888"
-              keyboardType="numeric"
-            />
-
-            {/* Condition Dropdown */}
-            <Text style={styles.label}>Condition</Text>
-            <TouchableOpacity onPress={() => setShowConditionPicker(true)}>
+            <View style={styles.formContainer}>
+              <Text style={styles.label}>
+                Alm Name <Text style={styles.required}>*</Text>
+              </Text>
               <TextInput
                 style={styles.input}
-                value={condition}
-                editable={false}
+                value={almName}
+                onChangeText={(text) => handleChange("almName", text)}
+                placeholder="Enter the name of the Alm"
+                placeholderTextColor="#888"
+              />
+
+              <Text style={styles.label}>
+                Quantity <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                value={quantity}
+                onChangeText={(text) => handleChange("quantity", text)}
+                placeholder="Enter quantity"
+                placeholderTextColor="#888"
+                keyboardType="numeric"
+              />
+
+              <Text style={styles.label}>
+                Condition <Text style={styles.required}>*</Text>
+              </Text>
+              <Dropdown
+                data={conditionOptions}
+                labelField="label"
+                valueField="value"
                 placeholder="Select Condition"
-                placeholderTextColor="#888"
+                value={condition}
+                onChange={(item) => setCondition(item.value)}
+                style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
               />
-            </TouchableOpacity>
-            {showConditionPicker && (
-              <View style={[styles.pickerContainer, { zIndex: 10 }]}>
-                <Picker
-                  selectedValue={condition}
-                  onValueChange={(itemValue) => {
-                    setCondition(itemValue);
-                    setShowConditionPicker(false);
-                  }}
-                  style={styles.picker}
-                >
-                  {conditionOptions.map((option) => (
-                    <Picker.Item key={option} label={option} value={option} />
-                  ))}
-                </Picker>
-              </View>
-            )}
 
-            {/* Location */}
-            <Text style={styles.label}>Pickup/Dropoff Location</Text>
-            <TextInput
-              style={styles.input}
-              value={location}
-              onChangeText={(text) => handleChange("location", text)}
-              placeholder="Enter location"
-              placeholderTextColor="#888"
-            />
-
-            {/* Description */}
-            <Text style={styles.label}>Description</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={description}
-              onChangeText={(text) => handleChange("description", text)}
-              placeholder="Enter a description"
-              placeholderTextColor="#888"
-              multiline
-              numberOfLines={4}
-            />
-
-            {/* Category Dropdown */}
-            <Text style={styles.label}>Category</Text>
-            <TouchableOpacity onPress={() => setShowCategoryPicker(true)}>
+              <Text style={styles.label}>
+                Pickup/Dropoff Location <Text style={styles.required}>*</Text>
+              </Text>
               <TextInput
                 style={styles.input}
-                value={category}
-                editable={false}
-                placeholder="Select Category"
+                value={location}
+                onChangeText={(text) => handleChange("location", text)}
+                placeholder="Enter location"
                 placeholderTextColor="#888"
               />
-            </TouchableOpacity>
-            {showCategoryPicker && (
-              <View style={[styles.pickerContainer, { zIndex: 10 }]}>
-                <Picker
-                  selectedValue={category}
-                  onValueChange={(itemValue) => {
-                    setCategory(itemValue);
-                    setShowCategoryPicker(false);
-                  }}
-                  style={styles.picker}
+
+              <Text style={styles.label}>
+                Description <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={description}
+                onChangeText={(text) => handleChange("description", text)}
+                placeholder="Enter a description"
+                placeholderTextColor="#888"
+                multiline
+                numberOfLines={4}
+              />
+
+              <Text style={styles.label}>
+                Category <Text style={styles.required}>*</Text>
+              </Text>
+              <Dropdown
+                data={categoryOptions}
+                labelField="label"
+                valueField="value"
+                placeholder="Select Category"
+                value={category}
+                onChange={(item) => setCategory(item.value)}
+                style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+              />
+
+              <Text style={styles.label}>Upload Image(s)</Text>
+              <View style={styles.uploadContainer}>
+                <TouchableOpacity
+                  style={styles.uploadButton}
+                  onPress={handleImageUpload}
                 >
-                  {categoryOptions.map((option) => (
-                    <Picker.Item key={option} label={option} value={option} />
-                  ))}
-                </Picker>
+                  <MaterialIcons name="photo-library" size={24} color="#fff" />
+                  <Text style={styles.uploadButtonText}>
+                    Select from Gallery
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.uploadButton}
+                  onPress={handleTakePhoto}
+                >
+                  <MaterialIcons name="photo-camera" size={24} color="#fff" />
+                  <Text style={styles.uploadButtonText}>Take a Photo</Text>
+                </TouchableOpacity>
               </View>
-            )}
 
-            {/* Image Upload */}
-            <Text style={styles.label}>Upload Image(s)</Text>
-            <TouchableOpacity
-              style={styles.uploadButton}
-              onPress={handleImageUpload}
-            >
-              <Text style={styles.uploadButtonText}>Select Images</Text>
-            </TouchableOpacity>
-
-            <View style={styles.imageContainer}>
-              {images.map((image, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: image }}
-                  style={styles.image}
-                />
-              ))}
+              <View style={styles.imageContainer}>
+                {images.map((image, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: image }}
+                    style={styles.image}
+                  />
+                ))}
+              </View>
             </View>
 
             {/* Buttons */}
@@ -304,10 +294,10 @@ const PostAlmScreen: React.FC = () => {
                 onPress={() => {
                   setAlmName("");
                   setQuantity("");
-                  setCondition("New");
+                  setCondition("");
                   setLocation("");
                   setDescription("");
-                  setCategory("Clothing");
+                  setCategory("");
                   setImages([]);
                   navigation.goBack();
                 }}
@@ -329,3 +319,108 @@ const PostAlmScreen: React.FC = () => {
 };
 
 export default PostAlmScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    padding: 20,
+    paddingBottom: 150,
+  },
+  formContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
+  required: {
+    color: "red",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: "#fff",
+    marginBottom: 15,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "#fff",
+  },
+  placeholderStyle: {
+    color: "#888",
+  },
+  selectedTextStyle: {
+    color: "#333",
+  },
+  uploadContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  uploadButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F58216",
+    padding: 10,
+    borderRadius: 5,
+  },
+  uploadButtonText: {
+    color: "#fff",
+    marginLeft: 8,
+    fontWeight: "bold",
+  },
+  imageContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 15,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 5,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    position: "absolute",
+    bottom: 40,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 20,
+    backgroundColor: "#fff", // Optional: Add a background to distinguish it
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "#ccc",
+    marginRight: 10,
+  },
+  postButton: {
+    backgroundColor: "#F58216",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+});
