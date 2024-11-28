@@ -25,10 +25,12 @@ export const getLatestActs = async (): Promise<Act[]> => {
   }
 };
 
-// Fetch all resources
-export const getAllResources = async (): Promise<Alm[]> => {
+// Fetch all resources with optional query parameters
+export const getAllResources = async (
+  queryParams: string = ""
+): Promise<Alm[]> => {
   try {
-    const response = await axios.get(`${API_URL}/resources`);
+    const response = await axios.get(`${API_URL}/resources${queryParams}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching resources", error);

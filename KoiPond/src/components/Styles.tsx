@@ -359,4 +359,51 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
     padding: 5, // Adjust this to position the back button
   },
+
+  //filter modal
+  filterButton: {
+    backgroundColor: "#F58216",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 15,
+    marginHorizontal: 20,
+  },
+
+  filterButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  applyButton: {
+    backgroundColor: "#28a745", // Green color for apply button
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+
+  // Modal Label Styling
+  modalLabel: {
+    fontSize: 16, // Set font size to make it readable
+    fontWeight: "600", // Bold text for better visibility
+    color: "#333", // Dark color for good contrast
+    marginBottom: 8, // Add some space between the label and the dropdown
+    marginTop: 16, // Add some space at the top
+  },
+  clearButton: {
+    backgroundColor: "#F5F5F5", // Light grey background for the clear button
+    borderColor: "#D1D1D1", // Light border color to match the background
+    borderWidth: 1, // Border width to define button boundaries
+    borderRadius: 5, // Rounded corners for a modern look
+    paddingVertical: 12, // Padding for vertical alignment
+    paddingHorizontal: 20, // Padding for horizontal spacing
+    marginBottom: 10, // Space between buttons
+    alignItems: "center", // Center the text horizontally
+    justifyContent: "center", // Center the text vertically
+    width: "100%", // Full width to align with the Apply button
+  },
 });

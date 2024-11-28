@@ -10,7 +10,8 @@ export interface Alm {
   image_url: string; // URL of the image representing the resource
   user_id: number; // User ID associated with the resource
   created_at: string; // Timestamp when the resource was created
-  updated_at: string; // Timestamp when the resource was last updated
+  updated_at: string;
+  // Timestamp when the resource was last updated
 }
 
 export interface Act {
@@ -23,7 +24,8 @@ export interface Act {
   is_active: boolean; // Whether the act is active or not
   user_id: number; // ID of the user associated with the act
   created_at: string; // Timestamp when the act was created
-  updated_at: string; // Timestamp when the act was last updated
+  updated_at: string;
+  location: string; // Timestamp when the act was last updated
 }
 
 // App.tsx

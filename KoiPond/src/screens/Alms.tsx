@@ -9,6 +9,7 @@ import {
   Text,
   Alert,
 } from "react-native";
+import RNPickerSelect from "react-native-picker-select"; // Import the picker component
 import { ThemedText } from "@/src/components/ThemedText";
 import { ThemedView } from "@/src/components/ThemedView";
 import { getAllResources } from "../../lib/api";
@@ -21,21 +22,25 @@ import SearchInput from "../components/SearchInput"; // Import the existing Sear
 
 export default function AlmsScreen() {
   const [resources, setResources] = useState<Alm[]>([]);
-  const [filteredResources, setFilteredResources] = useState<Alm[]>([]); // State to store filtered resources
+  const [filteredResources, setFilteredResources] = useState<Alm[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAlm, setSelectedAlm] = useState<Alm | null>(null); // Track the selected alm for the modal
-  const [modalVisible, setModalVisible] = useState<boolean>(false); // Track modal visibility
-  const [searchQuery, setSearchQuery] = useState<string>(""); // State to track the search query
+  const [selectedAlm, setSelectedAlm] = useState<Alm | null>(null);
+  const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false); // Modal visibility state
+  const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false); // Claim confirmation modal visibility state
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Use typed navigation
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [locationFilter, setLocationFilter] = useState<string | null>(null);
+  const [conditionFilter, setConditionFilter] = useState<string | null>(null);
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const fetchResources = async () => {
     try {
       const response = await getAllResources();
       setResources(response);
-      setFilteredResources(response); // Initially, show all resources
+      setFilteredResources(response);
     } catch (error) {
       console.error("Error fetching resources:", error);
       setError("Failed to load resources");
@@ -49,9 +54,8 @@ export default function AlmsScreen() {
   }, []);
 
   useEffect(() => {
-    // Filter resources based on the search query
     if (searchQuery.trim() === "") {
-      setFilteredResources(resources); // Show all resources if search is empty
+      setFilteredResources(resources);
     } else {
       setFilteredResources(
         resources.filter(
@@ -62,10 +66,29 @@ export default function AlmsScreen() {
         )
       );
     }
-  }, [searchQuery, resources]); // Re-filter when the query or resources change
+  }, [searchQuery, resources]);
+
+  // Filter resources based on the selected filters
+  useEffect(() => {
+    let filtered = resources;
+
+    if (categoryFilter) {
+      filtered = filtered.filter((alm) => alm.category === categoryFilter);
+    }
+
+    if (locationFilter) {
+      filtered = filtered.filter((alm) => alm.location === locationFilter);
+    }
+
+    if (conditionFilter) {
+      filtered = filtered.filter((alm) => alm.condition === conditionFilter);
+    }
+
+    setFilteredResources(filtered);
+  }, [categoryFilter, locationFilter, conditionFilter, resources]);
 
   const handleClaimAlm = () => {
-    setModalVisible(false); // Close the modal
+    setClaimModalVisible(false); // Close modal after claim
     Alert.alert(
       "Claim Submitted",
       "The poster of this item has been notified."
@@ -88,9 +111,13 @@ export default function AlmsScreen() {
     );
   }
 
+  // Extract unique categories, locations, and conditions
+  const categories = [...new Set(resources.map((alm) => alm.category))];
+  const locations = [...new Set(resources.map((alm) => alm.location))];
+  const conditions = [...new Set(resources.map((alm) => alm.condition))];
+
   return (
     <View style={{ flex: 1 }}>
-      {/* Use the custom SearchInput component */}
       <SearchInput
         placeholder="Search alms..."
         value={searchQuery}
@@ -101,23 +128,28 @@ export default function AlmsScreen() {
 
       <FlatList
         data={filteredResources}
-        keyExtractor={(item) => item.id.toString()} // `item.id` is a number, but `keyExtractor` needs a string
+        keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={
           <View>
             <ThemedView style={styles.titleContainer}>
               <ThemedText type="title">Available Alms</ThemedText>
             </ThemedView>
+            {/* Filter Button */}
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => setFilterModalVisible(true)}
+            >
+              <ThemedText style={styles.filterButtonText}>Filter</ThemedText>
+            </TouchableOpacity>
           </View>
         }
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => {
-              // Pass almId to the details screen
               navigation.navigate("AlmsDetailsScreen", { almId: item.id });
             }}
           >
             <ThemedView style={styles.card}>
-              {/* Alm Image */}
               <Image
                 source={{ uri: item.image_url }}
                 style={styles.cardImage}
@@ -125,7 +157,6 @@ export default function AlmsScreen() {
                   console.log("Error loading image:", error.nativeEvent.error)
                 }
               />
-              {/* Alm Details */}
               <ThemedText type="subtitle" style={styles.cardTitle}>
                 {item.name}
               </ThemedText>
@@ -136,12 +167,11 @@ export default function AlmsScreen() {
                 Quantity: {item.quantity} | Location: {item.location}
               </ThemedText>
 
-              {/* Volunteer-Activism Icon */}
               <TouchableOpacity
                 style={styles.iconContainer}
                 onPress={() => {
-                  setSelectedAlm(item); // Set the selected Alm
-                  setModalVisible(true); // Show the modal
+                  setSelectedAlm(item);
+                  setClaimModalVisible(true); // Open the claim confirmation modal
                 }}
               >
                 <MaterialIcons
@@ -156,33 +186,107 @@ export default function AlmsScreen() {
         contentContainerStyle={styles.listContent}
       />
 
-      {/* Modal for Claim Confirmation */}
+      {/* Claim Confirmation Modal */}
       <Modal
         transparent={true}
         animationType="slide"
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)} // Handle back button press
+        visible={claimModalVisible}
+        onRequestClose={() => setClaimModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
-              Do you wish to claim this alm?
-            </Text>
-            <Text style={styles.modalDescription}>
-              {selectedAlm?.name} - {selectedAlm?.description}
-            </Text>
+            <Text style={styles.modalTitle}>Claim Alm</Text>
+
+            {/* Buttons */}
             <View style={styles.modalButtonContainer}>
+              {/* Cancel Button */}
               <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
-                onPress={() => setModalVisible(false)}
+                style={[styles.button, styles.clearButton]}
+                onPress={() => setClaimModalVisible(false)}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
+
+              {/* Confirm Button */}
               <TouchableOpacity
-                style={[styles.button, styles.postButton]}
+                style={[styles.button, styles.applyButton]}
                 onPress={handleClaimAlm}
               >
-                <Text style={styles.buttonText}>Claim This Alm</Text>
+                <Text style={styles.buttonText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Filter Modal */}
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={filterModalVisible}
+        onRequestClose={() => setFilterModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Filter Alms</Text>
+
+            {/* Category Filter */}
+            <Text style={styles.modalLabel}>Category</Text>
+            <RNPickerSelect
+              onValueChange={(value) => setCategoryFilter(value)}
+              items={categories.map((category) => ({
+                label: category,
+                value: category,
+              }))}
+              placeholder={{ label: "Select a category", value: null }}
+              value={categoryFilter}
+            />
+
+            {/* Location Filter */}
+            <Text style={styles.modalLabel}>Location</Text>
+            <RNPickerSelect
+              onValueChange={(value) => setLocationFilter(value)}
+              items={locations.map((location) => ({
+                label: location,
+                value: location,
+              }))}
+              placeholder={{ label: "Select a location", value: null }}
+              value={locationFilter}
+            />
+
+            {/* Condition Filter */}
+            <Text style={styles.modalLabel}>Condition</Text>
+            <RNPickerSelect
+              onValueChange={(value) => setConditionFilter(value)}
+              items={conditions.map((condition) => ({
+                label: condition,
+                value: condition,
+              }))}
+              placeholder={{ label: "Select a condition", value: null }}
+              value={conditionFilter}
+            />
+
+            {/* Buttons */}
+            <View style={styles.modalButtonContainer}>
+              {/* Clear Filters Button */}
+              <TouchableOpacity
+                style={[styles.button, styles.clearButton]}
+                onPress={() => {
+                  setCategoryFilter(null);
+                  setLocationFilter(null);
+                  setConditionFilter(null);
+                  setFilterModalVisible(false);
+                }}
+              >
+                <Text style={styles.buttonText}>Clear Filters</Text>
+              </TouchableOpacity>
+
+              {/* Apply Filters Button */}
+              <TouchableOpacity
+                style={[styles.button, styles.applyButton]}
+                onPress={() => setFilterModalVisible(false)}
+              >
+                <Text style={styles.buttonText}>Apply Filters</Text>
               </TouchableOpacity>
             </View>
           </View>

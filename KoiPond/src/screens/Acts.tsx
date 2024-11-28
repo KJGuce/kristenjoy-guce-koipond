@@ -16,6 +16,7 @@ import { styles } from "../components/Styles";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../lib/types";
 import SearchInput from "../components/SearchInput"; // Import the SearchInput component
+import RNPickerSelect from "react-native-picker-select"; // Import the picker component
 
 export default function ActsScreen() {
   const [acts, setActs] = useState<Act[]>([]);
@@ -24,7 +25,11 @@ export default function ActsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [selectedAct, setSelectedAct] = useState<Act | null>(null); // Selected Act for modal
   const [modalVisible, setModalVisible] = useState<boolean>(false); // Modal visibility
+  const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false); // Filter Modal visibility
   const [searchQuery, setSearchQuery] = useState<string>(""); // Search query state
+
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null); // Category filter state
+  const [locationFilter, setLocationFilter] = useState<string | null>(null); // Location filter state
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -60,11 +65,26 @@ export default function ActsScreen() {
     }
   }, [searchQuery, acts]); // Re-filter when the query or acts change
 
+  // Filter acts based on selected filters (category and location)
+  useEffect(() => {
+    let filtered = acts;
+
+    if (categoryFilter) {
+      filtered = filtered.filter((act) => act.category === categoryFilter);
+    }
+
+    if (locationFilter) {
+      filtered = filtered.filter((act) => act.location === locationFilter);
+    }
+
+    setFilteredActs(filtered);
+  }, [categoryFilter, locationFilter, acts]);
+
   const handleVolunteer = () => {
     setModalVisible(false); // Close the modal
     Alert.alert(
       "Volunteer Confirmation",
-      "The poster of this act has been notified."
+      "You have successfully signed up to volunteer for this act. The poster of this act has been notified."
     );
   };
 
@@ -84,6 +104,10 @@ export default function ActsScreen() {
     );
   }
 
+  // Extract unique categories and locations from the acts data
+  const categories = [...new Set(acts.map((act) => act.category))];
+  const locations = [...new Set(acts.map((act) => act.location))];
+
   return (
     <View style={{ flex: 1 }}>
       <FlatList
@@ -100,6 +124,14 @@ export default function ActsScreen() {
               placeholder="Search all alms and acts" // Placeholder text
               onChangeText={(text) => setSearchQuery(text)} // Update search query
             />
+
+            {/* Filter Button */}
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => setFilterModalVisible(true)} // Open filter modal
+            >
+              <ThemedText style={styles.filterButtonText}>Filter</ThemedText>
+            </TouchableOpacity>
           </View>
         }
         renderItem={({ item }) => (
@@ -167,9 +199,67 @@ export default function ActsScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, styles.postButton]}
-                onPress={handleVolunteer}
+                onPress={handleVolunteer} // Handle confirmation
               >
                 <Text style={styles.buttonText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Filter Modal */}
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={filterModalVisible}
+        onRequestClose={() => setFilterModalVisible(false)} // Handle back button
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Filter Acts</Text>
+
+            {/* Category Filter */}
+            <Text style={styles.modalLabel}>Category</Text>
+            <RNPickerSelect
+              onValueChange={(value) => setCategoryFilter(value)}
+              items={categories.map((category) => ({
+                label: category,
+                value: category,
+              }))}
+              placeholder={{ label: "Select a category", value: null }}
+              value={categoryFilter}
+            />
+
+            {/* Location Filter */}
+            <Text style={styles.modalLabel}>Location</Text>
+            <RNPickerSelect
+              onValueChange={(value) => setLocationFilter(value)}
+              items={locations.map((location) => ({
+                label: location,
+                value: location,
+              }))}
+              placeholder={{ label: "Select a location", value: null }}
+              value={locationFilter}
+            />
+
+            {/* Buttons */}
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.clearButton]}
+                onPress={() => {
+                  setCategoryFilter(null);
+                  setLocationFilter(null);
+                }}
+              >
+                <Text style={styles.buttonText}>Clear Filters</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.button, styles.applyButton]}
+                onPress={() => setFilterModalVisible(false)} // Close modal
+              >
+                <Text style={styles.buttonText}>Apply Filters</Text>
               </TouchableOpacity>
             </View>
           </View>
