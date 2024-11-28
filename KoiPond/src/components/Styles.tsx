@@ -417,4 +417,16 @@ export const styles = StyleSheet.create({
   redText: {
     color: "red",
   },
+  claimButton: {
+    backgroundColor: "#FF5722", // Orange color for the button
+    padding: 10,
+    marginTop: 20,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  claimButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });
