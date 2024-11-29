@@ -20,7 +20,7 @@ const Header = () => {
         {/* Logo with navigation to HomeScreen */}
         <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
           <Image
-            source={require("../../assets/images/logo-placeholder-image.png")}
+            source={require("../../assets/images/kplogo1.png")}
             style={styles.logo}
           />
         </TouchableOpacity>
@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 100,
-    height: 35,
-    resizeMode: "contain",
+    height: 40,
+    // resizeMode: "contain",
   },
   rightIcons: {
     flexDirection: "row",

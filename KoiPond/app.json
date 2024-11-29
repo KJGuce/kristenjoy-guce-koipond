@@ -32,6 +32,18 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "customFonts": {
+            "Quicksand-Regular": "./assets/fonts/Quicksand-Regular.ttf",
+            "Quicksand-Bold": "./assets/fonts/Quicksand-Bold.ttf",
+            "Quicksand-Medium": "./assets/fonts/Quicksand-Medium.ttf",
+            "Quicksand-Light": "./assets/fonts/Quicksand-Light.ttf",
+            "Quicksand-SemiBold": "./assets/fonts/Quicksand-SemiBold.ttf"
+          }
+        }
       ]
     ],
     "experiments": {
