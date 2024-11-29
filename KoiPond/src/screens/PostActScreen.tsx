@@ -17,6 +17,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../lib/types";
+import { postNewAct } from "../../lib/api"; // Import the function to post a new act
 
 type PostActScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -28,7 +29,6 @@ interface PostActScreenProps {
 }
 
 const PostActScreen: React.FC<PostActScreenProps> = ({ navigation }) => {
-  // State variables for form inputs
   const [actName, setActName] = useState("");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -39,7 +39,6 @@ const PostActScreen: React.FC<PostActScreenProps> = ({ navigation }) => {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
-  // Dropdown options
   const categoryOptions = [
     { label: "Community", value: "Community" },
     { label: "Environmental", value: "Environmental" },
@@ -47,50 +46,67 @@ const PostActScreen: React.FC<PostActScreenProps> = ({ navigation }) => {
     { label: "Other", value: "Other" },
   ];
 
-  // Handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
-      !actName ||
+      !actName.trim() ||
       !startDate ||
       !endDate ||
-      !location ||
-      !description ||
+      !location.trim() ||
+      !description.trim() ||
       !category
     ) {
       Alert.alert("Error", "Please fill in all required fields.");
       return;
     }
 
+    if (startDate > endDate) {
+      Alert.alert("Error", "Start Date cannot be later than End Date.");
+      return;
+    }
+
     const newAct = {
-      actName,
-      startDate: startDate?.toISOString().split("T")[0], // Format as YYYY-MM-DD
-      endDate: endDate?.toISOString().split("T")[0],
+      title: actName, // Ensure it aligns with the backend field
+      start_date: startDate?.toISOString().split("T")[0],
+      end_date: endDate?.toISOString().split("T")[0],
       location,
       category,
       description,
-      policeCheckRequired,
+      police_check_required: policeCheckRequired === "Yes",
     };
 
-    console.log("New Act Submitted:", newAct);
-    Alert.alert("Success", "New Act has been posted!");
+    try {
+      const response = await postNewAct(newAct);
 
-    // Reset form after submission
-    setActName("");
-    setStartDate(null);
-    setEndDate(null);
-    setLocation("");
-    setCategory("");
-    setDescription("");
-    setPoliceCheckRequired("No");
+      if (response) {
+        Alert.alert("Success", "New Act has been posted!");
+        // Reset form after successful submission
+        setActName("");
+        setStartDate(null);
+        setEndDate(null);
+        setLocation("");
+        setCategory("");
+        setDescription("");
+        setPoliceCheckRequired("No");
 
-    navigation.navigate("HomeScreen"); // Navigate after submission
+        // Navigate back or refresh data
+        navigation.navigate("HomeScreen"); // Make sure HomeScreen fetches latest data
+      } else {
+        Alert.alert("Error", "Failed to post the new act. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting new act:", error);
+      Alert.alert(
+        "Error",
+        "An error occurred while posting the act. Please check your network or try again."
+      );
+    }
   };
 
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={80} // Adjust for bottom tabs
+      keyboardVerticalOffset={80}
     >
       <SafeAreaView style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -229,20 +245,10 @@ const PostActScreen: React.FC<PostActScreenProps> = ({ navigation }) => {
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
-        {/* Fixed Footer for Buttons */}
         <View style={styles.footerContainer}>
           <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
-            onPress={() => {
-              setActName("");
-              setStartDate(null);
-              setEndDate(null);
-              setLocation("");
-              setCategory("");
-              setDescription("");
-              setPoliceCheckRequired("No");
-              navigation.goBack();
-            }}
+            onPress={() => navigation.goBack()}
           >
             <Text style={styles.buttonText}>Cancel</Text>
           </TouchableOpacity>

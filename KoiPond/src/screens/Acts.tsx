@@ -43,8 +43,12 @@ export default function ActsScreen() {
   const fetchActs = async () => {
     try {
       const response = await getAllOpportunities();
-      setActs(response);
-      setFilteredActs(response);
+      const sortedActs = response.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      setActs(sortedActs);
+      setFilteredActs(sortedActs);
     } catch (error) {
       console.error("Error fetching acts:", error);
       setError("Failed to load volunteer opportunities");

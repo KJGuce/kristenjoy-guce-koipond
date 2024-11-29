@@ -109,7 +109,7 @@ export const postNewAlm = async (almData: {
   }
 
   try {
-    const response = await fetch("http://localhost:8080/resources", {
+    const response = await fetch(`${API_URL}/resources`, {
       method: "POST",
       body: formData,
       headers: {
@@ -120,6 +120,25 @@ export const postNewAlm = async (almData: {
     return await response.json();
   } catch (error) {
     console.error("Error posting Alm:", error);
+    throw error;
+  }
+};
+
+// Post a new act (volunteer opportunity)
+export const postNewAct = async (actData: {
+  title: string;
+  start_date: string; // ISO 8601 formatted string
+  end_date: string; // ISO 8601 formatted string
+  location: string;
+  category: string;
+  description: string;
+  police_check_required: boolean;
+}): Promise<Act> => {
+  try {
+    const response = await axios.post(`${API_URL}/opportunities`, actData);
+    return response.data;
+  } catch (error) {
+    console.error("Error posting Act:", error);
     throw error;
   }
 };
