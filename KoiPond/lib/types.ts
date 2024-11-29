@@ -43,3 +43,14 @@ export type RootStackParamList = {
   // Add SearchResultsScreen
   SearchResultsScreen: { query: string };
 };
+
+// Or explicitly define:
+export interface NewAlm {
+  name: string;
+  description: string;
+  category: string;
+  quantity: number;
+  location: string;
+  condition: string;
+  image_url: string | null; // Make this nullable if images are optional
+}

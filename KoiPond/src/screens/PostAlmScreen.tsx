@@ -18,6 +18,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Dropdown } from "react-native-element-dropdown";
 import { MaterialIcons } from "@expo/vector-icons";
+import { postNewAlm } from "../../lib/api"; // Import the API function
 
 const PostAlmScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -71,7 +72,11 @@ const PostAlmScreen: React.FC = () => {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImages((prev) => [...prev, result.assets[0].uri]);
+      const imageUri = result.assets[0].uri; // Get the URI of the selected image
+      console.log("Selected Image URI:", imageUri); // Log the URI here
+      setImages((prev) => [...prev, imageUri]);
+    } else {
+      console.log("Image selection was canceled."); // Log cancellation for debugging
     }
   };
 
@@ -83,12 +88,16 @@ const PostAlmScreen: React.FC = () => {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImages((prev) => [...prev, result.assets[0].uri]);
+      const imageUri = result.assets[0].uri; // Get the URI of the taken photo
+      console.log("Captured Image URI:", imageUri); // Log the URI here
+      setImages((prev) => [...prev, imageUri]);
+    } else {
+      console.log("Camera capture was canceled."); // Log cancellation for debugging
     }
   };
 
   // Function to handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
       !almName.trim() ||
       !quantity.trim() ||
@@ -102,19 +111,27 @@ const PostAlmScreen: React.FC = () => {
     }
 
     const newAlm = {
-      almName,
-      quantity,
-      condition,
-      location,
+      name: almName,
       description,
       category,
-      images,
+      quantity: Number(quantity),
+      location,
+      condition,
+      image: images[0] || null, // Assuming a single image upload for now
     };
 
-    console.log("New Alm Submitted:", newAlm);
-    Alert.alert("Success", "New Alm has been posted!");
-    navigation.goBack();
+    try {
+      const response = await postNewAlm(newAlm);
+      console.log("Backend response for new resource:", response);
 
+      Alert.alert("Success", "New Alm has been posted!");
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert("Error", "Failed to post new Alm.");
+      console.error("Post Alm Error:", error);
+    }
+
+    // Reset form
     setAlmName("");
     setQuantity("");
     setCondition("");

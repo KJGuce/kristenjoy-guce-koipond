@@ -471,4 +471,23 @@ export const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
   },
+  formContainer: {
+    marginBottom: 20,
+  },
+  required: {
+    color: "red",
+  },
+  placeholderStyle: {
+    color: "#888",
+    fontSize: 14,
+  },
+  selectedTextStyle: {
+    color: "#fff",
+    fontSize: 14,
+  },
+  uploadContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
 });

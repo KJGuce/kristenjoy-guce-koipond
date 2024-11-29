@@ -16,6 +16,7 @@ import { Alm, Act } from "../../lib/types";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../lib/types";
+import { API_URL } from "../../lib/api";
 
 const Home: React.FC = () => {
   const [alms, setAlms] = useState<Alm[]>([]);
@@ -86,46 +87,48 @@ const Home: React.FC = () => {
             </View>
 
             {/* Latest Alms - Horizontal Carousel */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Latest Alms</Text>
-              <FlatList
-                data={alms}
-                horizontal
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate("AlmsDetailsScreen", {
-                        almId: item.id,
-                      })
-                    }
-                  >
-                    <View style={styles.card}>
-                      <Image
-                        source={{ uri: item.image_url }}
-                        style={styles.cardImage}
-                        resizeMode="cover"
-                      />
-                      <Text style={styles.cardTitle}>{item.name}</Text>
-                      <Text style={styles.cardLocation}>{item.location}</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-                ListEmptyComponent={() => (
-                  <EmptyState
-                    title="No Alms Found"
-                    subtitle="No resources available"
-                  />
-                )}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                  />
-                }
-                contentContainerStyle={styles.carousel}
-              />
-            </View>
+            <FlatList
+              data={alms}
+              horizontal
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("AlmsDetailsScreen", {
+                      almId: item.id,
+                    })
+                  }
+                >
+                  <View style={styles.card}>
+                    <Image
+                      source={
+                        item.image_url
+                          ? {
+                              uri: item.image_url.startsWith("http")
+                                ? item.image_url
+                                : `${API_URL}${item.image_url}`,
+                            }
+                          : require("../../assets/images/favicon.png") // Local fallback
+                      }
+                      style={styles.cardImage}
+                      resizeMode="cover"
+                    />
+                    <Text style={styles.cardTitle}>{item.name}</Text>
+                    <Text style={styles.cardLocation}>{item.location}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={() => (
+                <EmptyState
+                  title="No Alms Found"
+                  subtitle="No resources available"
+                />
+              )}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
+              contentContainerStyle={styles.carousel}
+            />
 
             {/* Latest Acts - Regular Vertical List */}
             <View style={styles.section}>

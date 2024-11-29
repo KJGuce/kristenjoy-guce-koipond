@@ -1,7 +1,7 @@
 import axios from "axios";
-import { Alm, Act } from "./types";
+import { Alm, Act, NewAlm } from "./types";
 
-const API_URL = "http://localhost:8080"; // Adjust if necessary
+export const API_URL = "http://localhost:8080"; // Adjust if necessary
 
 // Fetch latest alms (resources)
 export const getLatestAlms = async (): Promise<Alm[]> => {
@@ -67,6 +67,85 @@ export const getActById = async (id: string): Promise<Act> => {
     return response.data;
   } catch (error) {
     console.error(`Error fetching act with id ${id}`, error);
+    throw error;
+  }
+};
+
+// Utility function to convert a URI to a Blob
+const uriToBlob = async (uri: string): Promise<Blob> => {
+  const response = await fetch(uri);
+  const blob = await response.blob();
+  return blob;
+};
+
+// Post a new alm (resource)
+export const postNewAlm = async (almData: {
+  name: string;
+  description: string;
+  category: string;
+  quantity: number;
+  location: string;
+  condition: string;
+  image: string | null; // This is the image URI
+}) => {
+  const formData = new FormData();
+
+  formData.append("name", almData.name);
+  formData.append("description", almData.description);
+  formData.append("category", almData.category);
+  formData.append("quantity", almData.quantity.toString());
+  formData.append("location", almData.location);
+  formData.append("condition", almData.condition);
+
+  if (almData.image) {
+    const imageName = `image_${Date.now()}.jpg`;
+    const imageType = "image/jpeg"; // Adjust based on your image format
+
+    formData.append("image", {
+      uri: almData.image,
+      name: imageName,
+      type: imageType,
+    } as any); // `as any` is needed due to TypeScript limitations
+  }
+
+  try {
+    const response = await fetch("http://localhost:8080/resources", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Content-Type": "multipart/form-data", // Ensure multipart
+      },
+    });
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error posting Alm:", error);
+    throw error;
+  }
+};
+
+// Delete an alm by ID
+export const deleteAlmById = async (
+  id: string
+): Promise<{ success: boolean }> => {
+  try {
+    const response = await axios.delete(`${API_URL}/resources/${id}`);
+    return { success: response.status === 200 };
+  } catch (error) {
+    console.error(`Error deleting alm with id ${id}`, error);
+    throw error;
+  }
+};
+
+// Delete an act by ID
+export const deleteActById = async (
+  id: string
+): Promise<{ success: boolean }> => {
+  try {
+    const response = await axios.delete(`${API_URL}/opportunities/${id}`);
+    return { success: response.status === 200 };
+  } catch (error) {
+    console.error(`Error deleting act with id ${id}`, error);
     throw error;
   }
 };

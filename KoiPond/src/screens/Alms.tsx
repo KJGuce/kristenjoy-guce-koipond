@@ -19,6 +19,7 @@ import { RootStackParamList } from "../../lib/types";
 import { MaterialIcons } from "@expo/vector-icons";
 import { styles as externalStyles } from "../components/Styles";
 import SearchInput from "../components/SearchInput";
+import { API_URL } from "../../lib/api";
 
 export default function AlmsScreen() {
   const [resources, setResources] = useState<Alm[]>([]);
@@ -46,8 +47,14 @@ export default function AlmsScreen() {
   const fetchResources = async () => {
     try {
       const response = await getAllResources();
-      setResources(response);
-      setFilteredResources(response);
+      // Sort resources by `created_at` in descending order
+      const sortedResources = response.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+
+      setResources(sortedResources);
+      setFilteredResources(sortedResources);
     } catch (error) {
       console.error("Error fetching resources:", error);
       setError("Failed to load resources");
@@ -154,21 +161,6 @@ export default function AlmsScreen() {
       <FlatList
         data={filteredResources}
         keyExtractor={(item) => item.id.toString()}
-        ListHeaderComponent={
-          <View>
-            <ThemedView style={externalStyles.titleContainer}>
-              <ThemedText type="title">Available Alms</ThemedText>
-            </ThemedView>
-            <TouchableOpacity
-              style={externalStyles.filterButton}
-              onPress={() => setFilterModalVisible(true)}
-            >
-              <ThemedText style={externalStyles.filterButtonText}>
-                Filter
-              </ThemedText>
-            </TouchableOpacity>
-          </View>
-        }
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => {
@@ -177,11 +169,16 @@ export default function AlmsScreen() {
           >
             <ThemedView style={externalStyles.card}>
               <Image
-                source={{ uri: item.image_url }}
-                style={externalStyles.cardImage}
-                onError={(error) =>
-                  console.log("Error loading image:", error.nativeEvent.error)
+                source={
+                  item.image_url
+                    ? {
+                        uri: item.image_url.startsWith("http")
+                          ? item.image_url
+                          : `${API_URL}${item.image_url}`,
+                      }
+                    : require("../../assets/images/favicon.png") // Local fallback
                 }
+                style={externalStyles.cardImage}
               />
               <ThemedText type="subtitle" style={externalStyles.cardTitle}>
                 {item.name}
@@ -192,7 +189,6 @@ export default function AlmsScreen() {
               <ThemedText style={externalStyles.cardDetails}>
                 Quantity: {item.quantity} | Location: {item.location}
               </ThemedText>
-
               <TouchableOpacity
                 style={externalStyles.iconContainer}
                 onPress={() => {
@@ -211,7 +207,6 @@ export default function AlmsScreen() {
         )}
         contentContainerStyle={externalStyles.listContent}
       />
-
       {/* Claim Confirmation Modal */}
       <Modal
         transparent={true}
