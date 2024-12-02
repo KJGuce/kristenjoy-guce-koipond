@@ -1,17 +1,17 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "expo/tsconfig.base", // Inherits Expo's base TypeScript configuration
   "compilerOptions": {
-    "strict": true,
+    "strict": true, // Enables strict type checking
+    "baseUrl": "./", // Allows non-relative imports starting from the project root
     "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+      "@/*": ["./*"] // Maps "@/..." to the root of the project
+    },
+    "types": ["expo-router"] // Adds TypeScript types for Expo Router
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "**/*.ts", // Includes all TypeScript files
+    "**/*.tsx", // Includes all TSX files for React components
+    ".expo/types/**/*.ts", // Includes additional Expo-generated type definitions
+    "expo-env.d.ts" // Includes a file for environment type definitions (if it exists)
   ]
 }

@@ -1,7 +1,7 @@
-import { Stack } from 'expo-router'
+import { Stack } from "expo-router";
 
 const StackLayout = () => {
-    return <Stack />
-}
+  return <Stack />;
+};
 
-export default StackLayout
+export default StackLayout;
