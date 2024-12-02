@@ -35,7 +35,7 @@ export default function TabLayout() {
           name="HomeStack"
           options={{
             title: "Home",
-            tabBarIcon: ({ color }) => (
+            tabBarIcon: ({ color }: { color: string }) => (
               <IconSymbol size={28} name="house.fill" color={color} />
             ),
           }}
@@ -44,7 +44,7 @@ export default function TabLayout() {
           name="AlmsStack"
           options={{
             title: "Alms",
-            tabBarIcon: ({ color }) => (
+            tabBarIcon: ({ color }: { color: string }) => (
               <IconSymbol size={28} name="gift.fill" color={color} />
             ),
           }}
@@ -53,7 +53,7 @@ export default function TabLayout() {
           name="ActsStack"
           options={{
             title: "Acts",
-            tabBarIcon: ({ color }) => (
+            tabBarIcon: ({ color }: { color: string }) => (
               <IconSymbol size={28} name="figure.2.circle.fill" color={color} />
             ),
           }}

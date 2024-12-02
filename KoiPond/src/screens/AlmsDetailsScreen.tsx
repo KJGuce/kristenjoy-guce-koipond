@@ -6,6 +6,7 @@ import {
   Modal,
   Text,
   FlatList,
+  Alert,
 } from "react-native";
 import { ThemedText } from "@/src/components/ThemedText";
 import { ThemedView } from "@/src/components/ThemedView";
@@ -14,7 +15,6 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../lib/types";
 import { getAlmById, getAllResources } from "../../lib/api";
 import { styles } from "../components/Styles";
-import { IconSymbol } from "../components/ui/IconSymbol";
 import { MaterialIcons } from "@expo/vector-icons"; // Import MaterialIcons
 import BackAction from "../components/BackAction"; // Adjust the path based on your project structure
 
@@ -28,7 +28,6 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
   const [claimModalVisible, setClaimModalVisible] = useState(false);
   const [selectedAlm, setSelectedAlm] = useState<Alm | null>(null);
 
-  // Fetch alm details and other resources on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -50,28 +49,21 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
     fetchData();
   }, [almId]);
 
-  // Configure a back button in the header
-  useEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <IconSymbol name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
-  // Handle the claim confirmation
+  // Claim confirmation logic
   const handleClaimAlm = () => {
-    console.log("Alm claimed:", selectedAlm);
-    // You can add additional logic for claiming the Alm here
-    setClaimModalVisible(false);
+    Alert.alert(
+      "Claim Confirmation",
+      `Your request to claim "${selectedAlm?.name}" has been sent. The poster has been notified.`,
+      [
+        {
+          text: "OK",
+          onPress: () => setClaimModalVisible(false),
+        },
+      ]
+    );
   };
 
-  // Render loading state
+  // Loading state
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -80,7 +72,7 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
     );
   }
 
-  // Render error state when the specified alm is not found
+  // Error state
   if (!alm) {
     return (
       <View style={styles.errorContainer}>
@@ -89,10 +81,9 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
     );
   }
 
-  // Render header with claim button (icon only) and Alm details
+  // Render Alm details and Claim button
   const renderHeader = () => (
     <ThemedView>
-      {/* Alm Details Section */}
       <BackAction />
       <ThemedView style={styles.almsDetailsCard}>
         <Image
@@ -111,19 +102,18 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
           <Text style={{ fontWeight: "bold" }}>Condition:</Text> {alm.condition}
         </ThemedText>
 
-        {/* Claim Button (Material Icon only) */}
+        {/* Claim Button */}
         <TouchableOpacity
-          style={styles.iconContainer}
+          style={styles.claimButton}
           onPress={() => {
-            setSelectedAlm(alm); // Set the selected Alm for claim
-            setClaimModalVisible(true); // Open the claim confirmation modal
+            setSelectedAlm(alm);
+            setClaimModalVisible(true);
           }}
         >
-          <MaterialIcons name="volunteer-activism" size={28} color="#F58216" />
+          <MaterialIcons name="volunteer-activism" size={28} color="#fff" />
         </TouchableOpacity>
       </ThemedView>
 
-      {/* Title for Remaining Alms */}
       <ThemedText type="subtitle" style={styles.almsRemainingTitle}>
         Other Alms
       </ThemedText>
@@ -135,7 +125,7 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
       <FlatList
         data={remainingAlms}
         keyExtractor={(item) => item.id.toString()}
-        ListHeaderComponent={renderHeader} // Render Alm Details as the header
+        ListHeaderComponent={renderHeader}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>
@@ -165,25 +155,18 @@ function AlmsDetailsScreen({ route, navigation }: Props) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Claim Alm</Text>
-
-            {/* Modal Description */}
             <Text style={styles.modalDescription}>
-              Are you sure you want to claim this Alm?
+              Are you sure you want to claim "{selectedAlm?.name}"?
             </Text>
-
-            {/* Buttons */}
             <View style={styles.modalButtonContainer}>
-              {/* Cancel Button */}
               <TouchableOpacity
-                style={[styles.button, styles.clearButton]}
+                style={[styles.button, styles.cancelButton]}
                 onPress={() => setClaimModalVisible(false)}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
-
-              {/* Confirm Button */}
               <TouchableOpacity
-                style={[styles.button, styles.applyButton]}
+                style={[styles.button, styles.postButton]}
                 onPress={handleClaimAlm}
               >
                 <Text style={styles.buttonText}>Confirm</Text>

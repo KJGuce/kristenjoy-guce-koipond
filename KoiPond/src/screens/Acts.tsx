@@ -62,7 +62,6 @@ export default function ActsScreen() {
   }, []);
 
   useEffect(() => {
-    // Filter acts based on the search query
     if (searchQuery.trim() === "") {
       setFilteredActs(acts);
     } else {
@@ -130,7 +129,6 @@ export default function ActsScreen() {
     );
   }
 
-  // Extract unique categories and locations from the acts data
   const categories = [...new Set(acts.map((act) => act.category))];
   const locations = [...new Set(acts.map((act) => act.location))];
 
@@ -179,6 +177,11 @@ export default function ActsScreen() {
                   <ThemedText style={externalStyles.cardDescription}>
                     {item.description}
                   </ThemedText>
+                  <ThemedText style={externalStyles.cardDetails}>
+                    <Text>
+                      Location: {item.location} | Category: {item.category}
+                    </Text>
+                  </ThemedText>
                 </View>
               </View>
 
@@ -198,7 +201,7 @@ export default function ActsScreen() {
         contentContainerStyle={externalStyles.listContent}
       />
 
-      {/* Modal for Volunteer Confirmation */}
+      {/* Volunteer Confirmation Modal */}
       <Modal
         transparent={true}
         animationType="slide"

@@ -17,14 +17,13 @@ const Header = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.headerContainer}>
-        {/* Logo with navigation to HomeScreen */}
+        Logo with navigation to HomeScreen
         <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
           <Image
             source={require("../../assets/images/kplogo1.png")}
             style={styles.logo}
           />
         </TouchableOpacity>
-
         {/* Profile Avatar and Settings */}
         <View style={styles.rightIcons}>
           <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
