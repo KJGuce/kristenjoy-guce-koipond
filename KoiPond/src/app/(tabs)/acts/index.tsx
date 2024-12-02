@@ -10,7 +10,6 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { ThemedText } from "@/src/components/ThemedText";
 import { ThemedView } from "@/src/components/ThemedView";
 import { getAllOpportunities } from "@/lib/api";
@@ -18,26 +17,27 @@ import { Act } from "@/lib/types";
 import { styles as externalStyles } from "@/src/components/Styles";
 import SearchInput from "@/src/components/SearchInput";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function ActsScreen() {
+  const router = useRouter();
   const [acts, setActs] = useState<Act[]>([]);
   const [filteredActs, setFilteredActs] = useState<Act[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAct, setSelectedAct] = useState<Act | null>(null);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false);
+  const [volunteerModalVisible, setVolunteerModalVisible] =
+    useState<boolean>(false);
+  const [selectedAct, setSelectedAct] = useState<Act | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+  // Filter states
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-
   const [showCategoryDropdown, setShowCategoryDropdown] =
     useState<boolean>(false);
   const [showLocationDropdown, setShowLocationDropdown] =
     useState<boolean>(false);
-
-  const router = useRouter();
 
   const fetchActs = async () => {
     try {
@@ -93,10 +93,10 @@ export default function ActsScreen() {
   }, [selectedCategories, selectedLocations, acts]);
 
   const handleVolunteer = () => {
-    setModalVisible(false);
+    setVolunteerModalVisible(false);
     Alert.alert(
       "Volunteer Confirmation",
-      "You have successfully signed up to volunteer for this act. The poster of this act has been notified."
+      `You have successfully signed up to volunteer for the act: ${selectedAct?.title}.`
     );
   };
 
@@ -158,10 +158,10 @@ export default function ActsScreen() {
           </View>
         }
         renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => router.push(`/acts/${item.id}` as `/acts/${number}`)}
-          >
-            <ThemedView style={externalStyles.card}>
+          <ThemedView style={externalStyles.card}>
+            <TouchableOpacity
+              onPress={() => router.push(`/acts/${item.id}` as `/acts/[actId]`)}
+            >
               <View style={externalStyles.cardContent}>
                 <Image
                   source={require("@/assets/images/5856.jpg")}
@@ -181,11 +181,169 @@ export default function ActsScreen() {
                   </ThemedText>
                 </View>
               </View>
-            </ThemedView>
-          </TouchableOpacity>
+            </TouchableOpacity>
+            {/* Volunteer Button */}
+            <TouchableOpacity
+              style={externalStyles.volunteerButton}
+              onPress={() => {
+                setSelectedAct(item);
+                setVolunteerModalVisible(true);
+              }}
+            >
+              <Text style={externalStyles.buttonText}>Volunteer</Text>
+            </TouchableOpacity>
+          </ThemedView>
         )}
         contentContainerStyle={externalStyles.listContent}
       />
+
+      {/* Volunteer Confirmation Modal */}
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={volunteerModalVisible}
+        onRequestClose={() => setVolunteerModalVisible(false)}
+      >
+        <View style={externalStyles.modalOverlay}>
+          <View style={externalStyles.modalContainer}>
+            <Text style={externalStyles.modalTitle}>
+              Confirm Volunteer Action
+            </Text>
+            <Text style={externalStyles.modalDescription}>
+              Are you sure you want to volunteer for the following act?
+            </Text>
+            <Text style={externalStyles.modalDescription}>
+              <Text style={{ fontWeight: "bold" }}>{selectedAct?.title}</Text>
+            </Text>
+            <View style={externalStyles.modalButtonContainer}>
+              <TouchableOpacity
+                style={[externalStyles.button, externalStyles.cancelButton]}
+                onPress={() => setVolunteerModalVisible(false)}
+              >
+                <Text style={externalStyles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[externalStyles.button, externalStyles.postButton]}
+                onPress={handleVolunteer}
+              >
+                <Text style={externalStyles.buttonText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Filter Modal */}
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={filterModalVisible}
+        onRequestClose={() => setFilterModalVisible(false)}
+      >
+        <ScrollView contentContainerStyle={externalStyles.modalOverlay}>
+          <View
+            style={[externalStyles.modalContainer, { paddingHorizontal: 20 }]}
+          >
+            <TouchableOpacity
+              style={externalStyles.closeButton}
+              onPress={() => setFilterModalVisible(false)}
+            >
+              <MaterialIcons name="close" size={28} color="black" />
+            </TouchableOpacity>
+
+            <Text style={externalStyles.modalTitle}>Filter Acts</Text>
+
+            {/* Category Filter */}
+            <TouchableOpacity
+              onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+            >
+              <Text style={externalStyles.filterLabel}>
+                Category {showCategoryDropdown ? "▲" : "▼"}
+              </Text>
+            </TouchableOpacity>
+            {showCategoryDropdown &&
+              categories.map((category) => (
+                <View key={category} style={externalStyles.checkboxContainer}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleCheckboxChange(
+                        category,
+                        selectedCategories,
+                        setSelectedCategories
+                      )
+                    }
+                  >
+                    <MaterialIcons
+                      name={
+                        selectedCategories.includes(category)
+                          ? "check-box"
+                          : "check-box-outline-blank"
+                      }
+                      size={24}
+                      color="#F58216"
+                    />
+                  </TouchableOpacity>
+                  <Text style={externalStyles.checkboxLabel}>{category}</Text>
+                </View>
+              ))}
+
+            {/* Location Filter */}
+            <TouchableOpacity
+              onPress={() => setShowLocationDropdown(!showLocationDropdown)}
+            >
+              <Text style={externalStyles.filterLabel}>
+                Location {showLocationDropdown ? "▲" : "▼"}
+              </Text>
+            </TouchableOpacity>
+            {showLocationDropdown &&
+              locations.map((location) => (
+                <View key={location} style={externalStyles.checkboxContainer}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleCheckboxChange(
+                        location,
+                        selectedLocations,
+                        setSelectedLocations
+                      )
+                    }
+                  >
+                    <MaterialIcons
+                      name={
+                        selectedLocations.includes(location)
+                          ? "check-box"
+                          : "check-box-outline-blank"
+                      }
+                      size={24}
+                      color="#F58216"
+                    />
+                  </TouchableOpacity>
+                  <Text style={externalStyles.checkboxLabel}>{location}</Text>
+                </View>
+              ))}
+
+            {/* Buttons */}
+            <View style={externalStyles.modalButtonContainer}>
+              <TouchableOpacity
+                style={[externalStyles.button, externalStyles.clearButton]}
+                onPress={() => {
+                  setSelectedCategories([]);
+                  setSelectedLocations([]);
+                  setFilterModalVisible(false);
+                }}
+              >
+                <Text style={externalStyles.buttonText}>Clear Filters</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[externalStyles.button, externalStyles.applyButton]}
+                onPress={() => setFilterModalVisible(false)}
+              >
+                <Text style={externalStyles.buttonText}>Apply Filters</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </Modal>
     </View>
   );
 }
