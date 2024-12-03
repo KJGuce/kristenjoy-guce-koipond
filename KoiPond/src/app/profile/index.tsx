@@ -33,15 +33,14 @@ const UserProfileScreen: React.FC = () => {
     setIsEditing((prev) => ({ ...prev, [field]: true }));
   };
 
-  const handleSave = (field: string) => {
+  const handleSaveField = (field: string) => {
     setIsEditing((prev) => ({ ...prev, [field]: false }));
-    // Add save logic here (e.g., API call to update user info)
-    Alert.alert("Saved", `Your ${field} has been updated.`);
+    // Add save logic for individual fields if needed
   };
 
-  const handleChangePassword = () => {
-    // Logic for changing password
-    Alert.alert("Change Password", "Password change feature coming soon!");
+  const handleSaveAllChanges = () => {
+    // Add logic to save all changes (e.g., API call to update user info)
+    Alert.alert("Saved", "Your changes have been updated.");
   };
 
   return (
@@ -58,7 +57,7 @@ const UserProfileScreen: React.FC = () => {
               value={username}
               onChangeText={setUsername}
             />
-            <TouchableOpacity onPress={() => handleSave("username")}>
+            <TouchableOpacity onPress={() => handleSaveField("username")}>
               <MaterialIcons name="check-circle" size={24} color="#28a745" />
             </TouchableOpacity>
           </View>
@@ -82,7 +81,7 @@ const UserProfileScreen: React.FC = () => {
               value={email}
               onChangeText={setEmail}
             />
-            <TouchableOpacity onPress={() => handleSave("email")}>
+            <TouchableOpacity onPress={() => handleSaveField("email")}>
               <MaterialIcons name="check-circle" size={24} color="#28a745" />
             </TouchableOpacity>
           </View>
@@ -106,7 +105,7 @@ const UserProfileScreen: React.FC = () => {
               value={firstName}
               onChangeText={setFirstName}
             />
-            <TouchableOpacity onPress={() => handleSave("firstName")}>
+            <TouchableOpacity onPress={() => handleSaveField("firstName")}>
               <MaterialIcons name="check-circle" size={24} color="#28a745" />
             </TouchableOpacity>
           </View>
@@ -130,7 +129,7 @@ const UserProfileScreen: React.FC = () => {
               value={lastName}
               onChangeText={setLastName}
             />
-            <TouchableOpacity onPress={() => handleSave("lastName")}>
+            <TouchableOpacity onPress={() => handleSaveField("lastName")}>
               <MaterialIcons name="check-circle" size={24} color="#28a745" />
             </TouchableOpacity>
           </View>
@@ -154,7 +153,7 @@ const UserProfileScreen: React.FC = () => {
               value={phoneNumber}
               onChangeText={setPhoneNumber}
             />
-            <TouchableOpacity onPress={() => handleSave("phoneNumber")}>
+            <TouchableOpacity onPress={() => handleSaveField("phoneNumber")}>
               <MaterialIcons name="check-circle" size={24} color="#28a745" />
             </TouchableOpacity>
           </View>
@@ -168,12 +167,12 @@ const UserProfileScreen: React.FC = () => {
         )}
       </View>
 
-      {/* Change Password Button */}
+      {/* Save Changes Button */}
       <TouchableOpacity
-        style={styles.changePasswordButton}
-        onPress={handleChangePassword}
+        style={styles.saveChangesButton}
+        onPress={handleSaveAllChanges}
       >
-        <Text style={styles.changePasswordText}>Change Password</Text>
+        <Text style={styles.saveChangesText}>Save Changes</Text>
       </TouchableOpacity>
     </View>
   );
@@ -220,13 +219,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginRight: 10,
   },
-  changePasswordButton: {
+  saveChangesButton: {
     backgroundColor: "#007bff",
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
   },
-  changePasswordText: {
+  saveChangesText: {
     color: "#fff",
     fontSize: 16,
   },

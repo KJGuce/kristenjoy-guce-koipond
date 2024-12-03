@@ -16,7 +16,7 @@ const Header = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.headerContainer}>
         {/* Logo with navigation to HomeScreen */}
-        <TouchableOpacity onPress={() => router.push("(tabs)/home")}>
+        <TouchableOpacity onPress={() => router.push("/home")}>
           <Image
             source={require("../../assets/images/kplogo1.png")}
             style={styles.logo}

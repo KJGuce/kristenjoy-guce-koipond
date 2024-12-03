@@ -1,7 +1,13 @@
-import { Stack } from 'expo-router'
+import { Stack } from "expo-router";
 
-const StackLayout = () => {
-    return <Stack />
-}
+const AlmsLayout = () => {
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false, // Disable default header
+      }}
+    />
+  );
+};
 
-export default StackLayout
+export default AlmsLayout;
