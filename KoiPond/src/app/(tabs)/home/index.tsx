@@ -13,10 +13,12 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import EmptyState from "@/src/components/EmptyState";
 import { getLatestAlms, getLatestActs, API_URL } from "@/lib/api";
 import { Alm, Act } from "@/lib/types";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 const Home: React.FC = () => {
   const router = useRouter();
+  const { refresh } = useLocalSearchParams(); // Retrieve the refresh parameter
+
   const [alms, setAlms] = useState<Alm[]>([]);
   const [acts, setActs] = useState<Act[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -51,6 +53,14 @@ const Home: React.FC = () => {
     fetchLatestActs();
   }, []);
 
+  // Handle refresh parameter
+  useEffect(() => {
+    if (refresh) {
+      onRefresh(); // Refresh Alms and Acts
+      router.replace("/(tabs)/home"); // Clear the refresh parameter
+    }
+  }, [refresh]);
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
@@ -64,7 +74,12 @@ const Home: React.FC = () => {
                 {/* Post Alm Button */}
                 <TouchableOpacity
                   style={styles.postAlmButton}
-                  onPress={() => router.push("/alms/PostAlm")}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/alms/PostAlm",
+                      params: { refresh: "true" },
+                    })
+                  }
                 >
                   <FontAwesome5 name="donate" size={16} color="#fff" />
                   <Text style={styles.postAlmButtonText}>Post an Alm</Text>
@@ -73,7 +88,12 @@ const Home: React.FC = () => {
                 {/* Post Act Button */}
                 <TouchableOpacity
                   style={styles.postActButton}
-                  onPress={() => router.push("/acts/PostAct")}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/acts/PostAct",
+                      params: { refresh: "true" },
+                    })
+                  }
                 >
                   <FontAwesome5 name="hands-helping" size={16} color="#fff" />
                   <Text style={styles.postActButtonText}>Post an Act</Text>

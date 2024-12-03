@@ -132,7 +132,7 @@ export const postNewAct = async (actData: {
   location: string;
   category: string;
   description: string;
-  police_check_required: boolean;
+  police_check_required: number;
 }): Promise<Act> => {
   try {
     const response = await axios.post(`${API_URL}/opportunities`, actData);

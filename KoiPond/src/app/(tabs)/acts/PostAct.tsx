@@ -16,7 +16,7 @@ import {
 import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
-import { postNewAct } from "@/lib/api"; // Ensure the correct path to the API
+import { postNewAct } from "@/lib/api";
 
 const PostActScreen: React.FC = () => {
   const router = useRouter();
@@ -25,9 +25,9 @@ const PostActScreen: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [location, setLocation] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<string | null>(null);
   const [description, setDescription] = useState("");
-  const [policeCheckRequired, setPoliceCheckRequired] = useState("No");
+  const [policeCheckRequired, setPoliceCheckRequired] = useState<string>("No"); // Change to string for Dropdown compatibility
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
@@ -36,6 +36,11 @@ const PostActScreen: React.FC = () => {
     { label: "Environmental", value: "Environmental" },
     { label: "Health", value: "Health" },
     { label: "Other", value: "Other" },
+  ];
+
+  const policeCheckOptions = [
+    { label: "Yes", value: "Yes" },
+    { label: "No", value: "No" },
   ];
 
   const handleSubmit = async () => {
@@ -57,13 +62,13 @@ const PostActScreen: React.FC = () => {
     }
 
     const newAct = {
-      title: actName, // Ensure it aligns with the backend field
-      start_date: startDate?.toISOString().split("T")[0],
-      end_date: endDate?.toISOString().split("T")[0],
+      title: actName,
+      start_date: startDate.toISOString().split("T")[0],
+      end_date: endDate.toISOString().split("T")[0],
       location,
       category,
       description,
-      police_check_required: policeCheckRequired === "Yes",
+      police_check_required: policeCheckRequired === "Yes" ? 1 : 0, // Convert "Yes"/"No" to number
     };
 
     try {
@@ -71,16 +76,21 @@ const PostActScreen: React.FC = () => {
 
       if (response) {
         Alert.alert("Success", "New Act has been posted!");
-        // Reset form after successful submission
+
+        // Reset the form after successful submission
         setActName("");
         setStartDate(null);
         setEndDate(null);
         setLocation("");
-        setCategory("");
+        setCategory(null);
         setDescription("");
         setPoliceCheckRequired("No");
 
-        router.back(); // Navigate back to the previous screen
+        // Navigate back to the Acts screen with a refresh
+        router.push({
+          pathname: "/(tabs)/acts",
+          params: { refresh: "true" },
+        });
       } else {
         Alert.alert("Error", "Failed to post the new act. Please try again.");
       }
@@ -187,7 +197,7 @@ const PostActScreen: React.FC = () => {
                 valueField="value"
                 placeholder="Select Category"
                 value={category}
-                onChange={(item) => setCategory(item.value)}
+                onChange={(item) => setCategory(item.value as string)}
                 style={styles.dropdown}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
@@ -206,33 +216,20 @@ const PostActScreen: React.FC = () => {
                 numberOfLines={4}
               />
 
-              <Text style={styles.label}>Police Check Required</Text>
-              <View style={styles.radioContainer}>
-                <TouchableOpacity
-                  style={styles.radioButton}
-                  onPress={() => setPoliceCheckRequired("Yes")}
-                >
-                  <View
-                    style={[
-                      styles.radioCircle,
-                      policeCheckRequired === "Yes" && styles.radioSelected,
-                    ]}
-                  />
-                  <Text style={styles.radioText}>Yes</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.radioButton}
-                  onPress={() => setPoliceCheckRequired("No")}
-                >
-                  <View
-                    style={[
-                      styles.radioCircle,
-                      policeCheckRequired === "No" && styles.radioSelected,
-                    ]}
-                  />
-                  <Text style={styles.radioText}>No</Text>
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.label}>
+                Police Check Required <Text style={styles.required}>*</Text>
+              </Text>
+              <Dropdown
+                data={policeCheckOptions}
+                labelField="label"
+                valueField="value"
+                placeholder="Select Option"
+                value={policeCheckRequired}
+                onChange={(item) => setPoliceCheckRequired(item.value)}
+                style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+              />
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
@@ -257,24 +254,12 @@ const PostActScreen: React.FC = () => {
 
 export default PostActScreen;
 
+// Styles
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-    padding: 20,
-  },
-  formContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#333",
-  },
-  required: {
-    color: "red",
-  },
+  container: { flex: 1, backgroundColor: "#f5f5f5", padding: 20 },
+  formContainer: { marginBottom: 20 },
+  label: { fontSize: 16, fontWeight: "bold", marginBottom: 8, color: "#333" },
+  required: { color: "red" },
   input: {
     borderWidth: 1,
     borderColor: "#ddd",
@@ -283,10 +268,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     marginBottom: 15,
   },
-  textArea: {
-    height: 100,
-    textAlignVertical: "top",
-  },
+  textArea: { height: 100, textAlignVertical: "top" },
   dropdown: {
     borderWidth: 1,
     borderColor: "#ddd",
@@ -295,12 +277,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: "#fff",
   },
-  placeholderStyle: {
-    color: "#888",
-  },
-  selectedTextStyle: {
-    color: "#333",
-  },
+  placeholderStyle: { color: "#888" },
+  selectedTextStyle: { color: "#333" },
   radioContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -321,13 +299,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 8,
   },
-  radioSelected: {
-    backgroundColor: "#46B3A5",
-  },
-  radioText: {
-    fontSize: 16,
-    color: "#333",
-  },
+  radioSelected: { backgroundColor: "#46B3A5" },
+  radioText: { fontSize: 16, color: "#333" },
   datePicker: {
     borderWidth: 1,
     borderColor: "#ddd",
@@ -336,13 +309,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     marginBottom: 15,
   },
-  datePickerText: {
-    fontSize: 16,
-    color: "#333",
-  },
+  datePickerText: { fontSize: 16, color: "#333" },
   footerContainer: {
     position: "absolute",
-    bottom: 80,
+    bottom: 20,
     left: 0,
     right: 0,
     flexDirection: "row",
@@ -358,15 +328,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
   },
-  cancelButton: {
-    backgroundColor: "#ccc",
-    marginRight: 10,
-  },
-  postButton: {
-    backgroundColor: "#46B3A5",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
+  cancelButton: { backgroundColor: "#ccc", marginRight: 10 },
+  postButton: { backgroundColor: "#46B3A5" },
+  buttonText: { color: "#fff", fontWeight: "bold" },
 });

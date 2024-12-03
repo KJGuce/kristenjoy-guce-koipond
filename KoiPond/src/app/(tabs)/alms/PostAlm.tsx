@@ -17,13 +17,13 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { Dropdown } from "react-native-element-dropdown";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router"; // Use `expo-router` instead of `useNavigation`
-import { postNewAlm } from "@/lib/api"; // Ensure the correct path is used for the API function
+import { useRouter } from "expo-router";
+import { postNewAlm } from "@/lib/api";
 
 const PostAlmScreen: React.FC = () => {
   const router = useRouter();
 
-  // State variables for form inputs
+  // State initialization
   const [almName, setAlmName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [condition, setCondition] = useState<string>("");
@@ -47,9 +47,9 @@ const PostAlmScreen: React.FC = () => {
     { label: "Other", value: "Other" },
   ];
 
-  // Permissions for image picker
+  // Request permissions for image picking
   useEffect(() => {
-    (async () => {
+    const requestPermissions = async () => {
       if (Platform.OS !== "web") {
         const { status } =
           await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -60,34 +60,35 @@ const PostAlmScreen: React.FC = () => {
           );
         }
       }
-    })();
+    };
+    requestPermissions();
   }, []);
 
-  // Image selection from gallery
+  // Handle image upload
   const handleImageUpload = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: "images",
       quality: 0.8,
     });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
+    if (!result.canceled && result.assets?.length) {
       setImages((prev) => [...prev, result.assets[0].uri]);
     }
   };
 
-  // Taking a photo using the camera
+  // Handle photo capture
   const handleTakePhoto = async () => {
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: "images",
       quality: 0.8,
     });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
+    if (!result.canceled && result.assets?.length) {
       setImages((prev) => [...prev, result.assets[0].uri]);
     }
   };
 
-  // Handle form submission
+  // Submit the form
   const handleSubmit = async () => {
     if (
       !almName.trim() ||
@@ -102,32 +103,37 @@ const PostAlmScreen: React.FC = () => {
     }
 
     const newAlm = {
-      name: almName,
-      description,
-      category,
+      name: almName.trim(),
+      description: description.trim(),
+      category: category.trim(),
       quantity: Number(quantity),
-      location,
-      condition,
-      image: images[0] || null, // Assuming single image upload for now
+      location: location.trim(),
+      condition: condition.trim(),
+      image: images[0] || null, // Optional first image
     };
 
     try {
       await postNewAlm(newAlm);
       Alert.alert("Success", "New Alm has been posted!");
-      router.back(); // Replace `navigation.goBack()` with `router.back()`
-    } catch (error) {
-      Alert.alert("Error", "Failed to post new Alm.");
-      console.error("Post Alm Error:", error);
-    }
 
-    // Reset form
-    setAlmName("");
-    setQuantity("");
-    setCondition("");
-    setLocation("");
-    setDescription("");
-    setCategory("");
-    setImages([]);
+      // Reset the form
+      setAlmName("");
+      setQuantity("");
+      setCondition("");
+      setLocation("");
+      setDescription("");
+      setCategory("");
+      setImages([]);
+
+      // Navigate back with refresh parameter
+      router.push({
+        pathname: "/(tabs)/alms",
+        params: { refresh: "true" },
+      });
+    } catch (error) {
+      console.error("Post Alm Error:", error);
+      Alert.alert("Error", "Failed to post new Alm.");
+    }
   };
 
   return (
@@ -136,9 +142,9 @@ const PostAlmScreen: React.FC = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <SafeAreaView style={{ flex: 1 }}>
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView
-            contentContainerStyle={styles.container}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.formContainer}>
@@ -176,6 +182,8 @@ const PostAlmScreen: React.FC = () => {
                 value={condition}
                 onChange={(item) => setCondition(item.value)}
                 style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
               />
 
               <Text style={styles.label}>
@@ -245,7 +253,6 @@ const PostAlmScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* Buttons */}
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
@@ -277,7 +284,7 @@ const styles = StyleSheet.create({
     paddingBottom: 150,
   },
   formContainer: {
-    marginBottom: 20,
+    marginBottom: 60,
   },
   label: {
     fontSize: 16,
@@ -351,7 +358,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 20,
-    backgroundColor: "#fff", // Optional: Add a background to distinguish it
+    backgroundColor: "#fff",
     borderTopWidth: 1,
     borderColor: "#ddd",
   },
@@ -371,5 +378,9 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 50,
   },
 });
