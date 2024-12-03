@@ -418,7 +418,7 @@ export const styles = StyleSheet.create({
     color: "red",
   },
   claimButton: {
-    backgroundColor: "#FF5722", // Orange color for the button
+    backgroundColor: "#F58216", // Orange color for the button
     padding: 10,
     marginTop: 20,
     borderRadius: 5,
