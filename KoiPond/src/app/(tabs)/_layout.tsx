@@ -1,58 +1,48 @@
 import { Tabs } from "expo-router";
-import React from "react";
-import { Platform, View } from "react-native";
-import { HapticTab } from "@/src/components/HapticTab";
-import { IconSymbol } from "@/src/components/ui/IconSymbol";
-import TabBarBackground from "@/src/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/src/hooks/useColorScheme";
-import Header from "@/src/components/Header"; // Import Header
+import { IconSymbol } from "@/src/components/ui/IconSymbol";
+import { HapticTab } from "@/src/components/HapticTab";
+import TabBarBackground from "@/src/components/ui/TabBarBackground";
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+const TabLayout = () => {
   return (
-    <View style={{ flex: 1 }}>
-      {/* Global Header - visible on all screens */}
-      <Header />
-
-      <Tabs
-        // initialRouteName="HomeStack" // This ensures the Home tab is selected by default
-        screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-          headerShown: false, // Disable default header, as we already have our own custom one
-          tabBarButton: HapticTab,
-          tabBarBackground: TabBarBackground,
-          tabBarStyle: Platform.select({
-            ios: {
-              position: "absolute", // Transparent background on iOS
-            },
-            default: {},
-          }),
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: Colors.light.tint,
+        headerShown: false, // Header is handled globally
+        tabBarButton: HapticTab,
+        tabBarBackground: TabBarBackground,
+      }}
+    >
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="house.fill" color={color} />
+          ),
         }}
-      >
-        <Tabs.Screen
-          name="home"
-          options={{
-            title: "Home",
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="alms"
-          options={{
-            title: "Alms",
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="gift.fill" color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="acts"
-          options={{
-            title: "Acts",
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="figure.2.circle.fill" color={color} />,
-          }}
-        />
-      </Tabs>
-    </View>
+      />
+      <Tabs.Screen
+        name="alms"
+        options={{
+          title: "Alms",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="gift.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="acts"
+        options={{
+          title: "Acts",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="figure.2.circle.fill" color={color} />
+          ),
+        }}
+      />
+    </Tabs>
   );
-}
+};
+
+export default TabLayout;

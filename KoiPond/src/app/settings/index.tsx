@@ -9,8 +9,11 @@ import {
   Modal,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker"; // Import Picker from the correct package
+import { useRouter } from "expo-router";
 
 const SettingsScreen: React.FC = () => {
+  const router = useRouter();
+
   // State for settings
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isPrivate, setIsPrivate] = useState(false);
@@ -20,6 +23,7 @@ const SettingsScreen: React.FC = () => {
   const handleLogOut = () => {
     // Logic to log out the user
     Alert.alert("Log Out", "You have logged out successfully!");
+    router.replace("/login"); // Redirect to login page after logout (adjust the route as needed)
   };
 
   const handleLanguageChange = (selectedLanguage: string) => {

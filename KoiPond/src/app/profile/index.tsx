@@ -8,8 +8,11 @@ import {
   Alert,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons"; // For the edit icon
+import { useRouter } from "expo-router";
 
 const UserProfileScreen: React.FC = () => {
+  const router = useRouter();
+
   // State to hold the user's profile information
   const [username, setUsername] = useState("john_doe");
   const [email, setEmail] = useState("john.doe@example.com");
@@ -32,7 +35,8 @@ const UserProfileScreen: React.FC = () => {
 
   const handleSave = (field: string) => {
     setIsEditing((prev) => ({ ...prev, [field]: false }));
-    // You can add save logic here (e.g., sending data to a server)
+    // Add save logic here (e.g., API call to update user info)
+    Alert.alert("Saved", `Your ${field} has been updated.`);
   };
 
   const handleChangePassword = () => {
