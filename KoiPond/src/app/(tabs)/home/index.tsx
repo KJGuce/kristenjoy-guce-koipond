@@ -11,20 +11,15 @@ import {
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import EmptyState from "@/src/components/EmptyState";
-import { getLatestAlms, getLatestActs } from "@/lib/api";
+import { getLatestAlms, getLatestActs, API_URL } from "@/lib/api";
 import { Alm, Act } from "@/lib/types";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "@/lib/types";
-import { API_URL } from "@/lib/api";
+import { useRouter } from "expo-router";
 
 const Home: React.FC = () => {
+  const router = useRouter();
   const [alms, setAlms] = useState<Alm[]>([]);
   const [acts, setActs] = useState<Act[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const fetchLatestAlms = async () => {
     try {
@@ -69,7 +64,7 @@ const Home: React.FC = () => {
                 {/* Post Alm Button */}
                 <TouchableOpacity
                   style={styles.postAlmButton}
-                  onPress={() => navigation.navigate("PostAlmScreen")}
+                  onPress={() => router.push("/alms/PostAlm")}
                 >
                   <FontAwesome5 name="donate" size={16} color="#fff" />
                   <Text style={styles.postAlmButtonText}>Post an Alm</Text>
@@ -78,7 +73,7 @@ const Home: React.FC = () => {
                 {/* Post Act Button */}
                 <TouchableOpacity
                   style={styles.postActButton}
-                  onPress={() => navigation.navigate("PostActScreen")}
+                  onPress={() => router.push("/acts/PostAct")}
                 >
                   <FontAwesome5 name="hands-helping" size={16} color="#fff" />
                   <Text style={styles.postActButtonText}>Post an Act</Text>
@@ -93,11 +88,7 @@ const Home: React.FC = () => {
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate("AlmsDetailsScreen", {
-                      almId: item.id,
-                    })
-                  }
+                  onPress={() => router.push(`/alms/${item.id}`)}
                 >
                   <View style={styles.card}>
                     <Image
@@ -138,11 +129,7 @@ const Home: React.FC = () => {
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                   <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate("ActsDetailsScreen", {
-                        actId: item.id,
-                      })
-                    }
+                    onPress={() => router.push(`/acts/${item.id}`)}
                   >
                     <View style={styles.card}>
                       <Text style={styles.cardTitle}>{item.title}</Text>
@@ -179,11 +166,11 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff", // Dark background
+    backgroundColor: "#fff",
   },
   header: {
     padding: 16,
-    backgroundColor: "#1f1f1f", // Slightly lighter for contrast
+    backgroundColor: "#1f1f1f",
   },
   title: {
     fontSize: 24,
