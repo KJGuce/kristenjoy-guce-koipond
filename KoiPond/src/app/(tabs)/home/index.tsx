@@ -114,48 +114,59 @@ const Home: React.FC = () => {
             </View>
 
             {/* Latest Alms - Horizontal Carousel */}
-            <FlatList
-              data={alms}
-              horizontal
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  onPress={() => router.push(`/alms/${item.id}`)}
-                >
-                  <View style={styles.card}>
-                    <Image
-                      source={
-                        item.image_url
-                          ? {
-                              uri: item.image_url.startsWith("http")
-                                ? item.image_url
-                                : `${API_URL}${item.image_url}`,
-                            }
-                          : require("@/assets/images/favicon.png") // Local fallback
-                      }
-                      style={styles.cardImage}
-                      resizeMode="cover"
-                    />
-                    <ThemedText style={styles.cardTitle} type="defaultSemiBold">
-                      {item.name}
-                    </ThemedText>
-                    <ThemedText style={styles.cardLocation} type="default">
-                      {item.location}
-                    </ThemedText>
-                  </View>
-                </TouchableOpacity>
-              )}
-              ListEmptyComponent={() => (
-                <EmptyState
-                  title="No Alms Found"
-                  subtitle="No resources available"
-                />
-              )}
-              refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-              }
-              contentContainerStyle={styles.carousel}
-            />
+            <View style={styles.section}>
+              <ThemedText style={styles.sectionTitle} type="subtitle">
+                Latest Alms
+              </ThemedText>
+              <FlatList
+                data={alms}
+                horizontal
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    onPress={() => router.push(`/alms/${item.id}`)}
+                  >
+                    <View style={styles.card}>
+                      <Image
+                        source={
+                          item.image_url
+                            ? {
+                                uri: item.image_url.startsWith("http")
+                                  ? item.image_url
+                                  : `${API_URL}${item.image_url}`,
+                              }
+                            : require("@/assets/images/favicon.png") // Local fallback
+                        }
+                        style={styles.cardImage}
+                        resizeMode="cover"
+                      />
+                      <ThemedText
+                        style={styles.cardTitle}
+                        type="defaultSemiBold"
+                      >
+                        {item.name}
+                      </ThemedText>
+                      <ThemedText style={styles.cardLocation} type="default">
+                        {item.location}
+                      </ThemedText>
+                    </View>
+                  </TouchableOpacity>
+                )}
+                ListEmptyComponent={() => (
+                  <EmptyState
+                    title="No Alms Found"
+                    subtitle="No resources available"
+                  />
+                )}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                  />
+                }
+                contentContainerStyle={styles.carousel}
+              />
+            </View>
 
             {/* Latest Acts - Regular Vertical List */}
             <View style={styles.section}>

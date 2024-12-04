@@ -374,12 +374,14 @@ export const styles = StyleSheet.create({
   },
 
   applyButton: {
-    backgroundColor: "#007bff", // Green color for apply button
-    padding: 10,
+    flex: 1, // Ensure equal size with clearButton
+    backgroundColor: "#007bff",
+    paddingVertical: 12,
+    paddingHorizontal: 10, // Match padding with clearButton
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 10,
+    marginHorizontal: 5,
   },
 
   // Modal Label Styling
@@ -391,16 +393,16 @@ export const styles = StyleSheet.create({
     marginTop: 16, // Add some space at the top
   },
   clearButton: {
-    backgroundColor: "#F5F5F5", // Light grey background for the clear button
-    borderColor: "#D1D1D1", // Light border color to match the background
-    borderWidth: 1, // Border width to define button boundaries
-    borderRadius: 5, // Rounded corners for a modern look
-    paddingVertical: 12, // Padding for vertical alignment
-    paddingHorizontal: 20, // Padding for horizontal spacing
-    marginBottom: 10, // Space between buttons
-    alignItems: "center", // Center the text horizontally
-    justifyContent: "center", // Center the text vertically
-    width: "100%", // Full width to align with the Apply button
+    flex: 1, // Make the button take equal space
+    backgroundColor: "#F5F5F5",
+    borderColor: "#D1D1D1",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingVertical: 12,
+    paddingHorizontal: 10, // Match padding with applyButton
+    marginHorizontal: 5, // Add spacing between buttons
+    alignItems: "center",
+    justifyContent: "center",
   },
   closeButton: {
     position: "absolute",
@@ -409,11 +411,14 @@ export const styles = StyleSheet.create({
     zIndex: 1, // Ensure the close button is above other content
   },
   modalButtonContainer: {
-    flexDirection: "row", // Align buttons side by side
-    justifyContent: "space-between", // Space buttons out
-    marginTop: 20, // Add some space from the filter inputs
-    width: "100%", // Take up full width of the modal
+    flexDirection: "row",
+    justifyContent: "center", // Center the buttons
+    alignItems: "center", // Align vertically
+    gap: 10, // Add uniform spacing between buttons
+    marginTop: 20, // Spacing from inputs
+    width: "100%", // Ensure it spans the modal's width
   },
+
   redText: {
     color: "red",
   },
@@ -465,8 +470,11 @@ export const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-start", // Ensure alignment starts from the left
     marginBottom: 10,
+    paddingHorizontal: 5, // Add some padding for visual spacing
   },
+
   checkboxLabel: {
     marginLeft: 8,
     fontSize: 16,
