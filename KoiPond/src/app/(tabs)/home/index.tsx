@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   FlatList,
-  Text,
   View,
   TouchableOpacity,
   RefreshControl,
@@ -14,6 +13,7 @@ import EmptyState from "@/src/components/EmptyState";
 import { getLatestAlms, getLatestActs, API_URL } from "@/lib/api";
 import { Alm, Act } from "@/lib/types";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { ThemedText } from "@/src/components/ThemedText";
 
 const Home: React.FC = () => {
   const router = useRouter();
@@ -69,7 +69,9 @@ const Home: React.FC = () => {
         ListHeaderComponent={
           <>
             <View style={styles.header}>
-              <Text style={styles.title}>My Pond</Text>
+              <ThemedText style={styles.title} type="title">
+                My Pond
+              </ThemedText>
               <View style={styles.buttonContainer}>
                 {/* Post Alm Button */}
                 <TouchableOpacity
@@ -82,7 +84,12 @@ const Home: React.FC = () => {
                   }
                 >
                   <FontAwesome5 name="donate" size={16} color="#fff" />
-                  <Text style={styles.postAlmButtonText}>Post an Alm</Text>
+                  <ThemedText
+                    style={styles.postAlmButtonText}
+                    type="defaultSemiBold"
+                  >
+                    Post an Alm
+                  </ThemedText>
                 </TouchableOpacity>
 
                 {/* Post Act Button */}
@@ -96,7 +103,12 @@ const Home: React.FC = () => {
                   }
                 >
                   <FontAwesome5 name="hands-helping" size={16} color="#fff" />
-                  <Text style={styles.postActButtonText}>Post an Act</Text>
+                  <ThemedText
+                    style={styles.postActButtonText}
+                    type="defaultSemiBold"
+                  >
+                    Post an Act
+                  </ThemedText>
                 </TouchableOpacity>
               </View>
             </View>
@@ -124,8 +136,12 @@ const Home: React.FC = () => {
                       style={styles.cardImage}
                       resizeMode="cover"
                     />
-                    <Text style={styles.cardTitle}>{item.name}</Text>
-                    <Text style={styles.cardLocation}>{item.location}</Text>
+                    <ThemedText style={styles.cardTitle} type="defaultSemiBold">
+                      {item.name}
+                    </ThemedText>
+                    <ThemedText style={styles.cardLocation} type="default">
+                      {item.location}
+                    </ThemedText>
                   </View>
                 </TouchableOpacity>
               )}
@@ -143,7 +159,9 @@ const Home: React.FC = () => {
 
             {/* Latest Acts - Regular Vertical List */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Latest Acts</Text>
+              <ThemedText style={styles.sectionTitle} type="subtitle">
+                Latest Acts
+              </ThemedText>
               <FlatList
                 data={acts}
                 keyExtractor={(item) => item.id.toString()}
@@ -152,10 +170,15 @@ const Home: React.FC = () => {
                     onPress={() => router.push(`/acts/${item.id}`)}
                   >
                     <View style={styles.card}>
-                      <Text style={styles.cardTitle}>{item.title}</Text>
-                      <Text style={styles.cardDescription}>
+                      <ThemedText
+                        style={styles.cardTitle}
+                        type="defaultSemiBold"
+                      >
+                        {item.title}
+                      </ThemedText>
+                      <ThemedText style={styles.cardDescription} type="default">
                         {item.description}
-                      </Text>
+                      </ThemedText>
                     </View>
                   </TouchableOpacity>
                 )}
