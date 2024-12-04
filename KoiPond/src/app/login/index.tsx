@@ -41,7 +41,7 @@ const LoginScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Image source={require("@/assets/images/pond.png")} style={styles.pond} />
-      <Text style={styles.welcomeMessage}>Welcome to the</Text>
+      <Text style={styles.welcomeMessage}>Welcome to</Text>
       <Image
         source={require("@/assets/images/kplogo1.png")}
         style={styles.logo}

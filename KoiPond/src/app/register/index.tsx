@@ -4,13 +4,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Alert,
   KeyboardAvoidingView,
   SafeAreaView,
   Keyboard,
   TouchableWithoutFeedback,
   Platform,
+  StyleSheet,
+  Image,
 } from "react-native";
 
 const RegisterScreen = () => {
@@ -51,7 +52,14 @@ const RegisterScreen = () => {
       <SafeAreaView style={styles.container}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.formContainer}>
-            <Text style={styles.header}>Create an Account</Text>
+            <Image
+              source={require("@/assets/images/pond.png")}
+              style={styles.pond}
+            />
+            <Text style={styles.header}>Welcome to KoiPond</Text>
+            <Text style={styles.subHeader}>
+              Create your account to get started
+            </Text>
 
             <Text style={styles.label}>Username</Text>
             <TextInput
@@ -59,7 +67,7 @@ const RegisterScreen = () => {
               value={username}
               onChangeText={setUsername}
               placeholder="Enter your username"
-              placeholderTextColor="#888"
+              placeholderTextColor="#aaa"
             />
 
             <Text style={styles.label}>Email</Text>
@@ -68,7 +76,7 @@ const RegisterScreen = () => {
               value={email}
               onChangeText={setEmail}
               placeholder="Enter your email"
-              placeholderTextColor="#888"
+              placeholderTextColor="#aaa"
               keyboardType="email-address"
             />
 
@@ -78,7 +86,7 @@ const RegisterScreen = () => {
               value={password}
               onChangeText={setPassword}
               placeholder="Enter your password"
-              placeholderTextColor="#888"
+              placeholderTextColor="#aaa"
               secureTextEntry
             />
 
@@ -88,7 +96,7 @@ const RegisterScreen = () => {
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               placeholder="Confirm your password"
-              placeholderTextColor="#888"
+              placeholderTextColor="#aaa"
               secureTextEntry
             />
 
@@ -107,7 +115,8 @@ const RegisterScreen = () => {
               }}
             >
               <Text style={styles.loginLinkText}>
-                Already have an account? Log in
+                Already have an account?{" "}
+                <Text style={styles.loginLinkHighlight}>Log in</Text>
               </Text>
             </TouchableOpacity>
           </View>
@@ -120,39 +129,68 @@ const RegisterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-    padding: 20,
+    backgroundColor: "#f0f9f8", // Light, calming background color
+    paddingHorizontal: 20, // Padding for the entire screen
   },
   formContainer: {
     flex: 1,
     justifyContent: "center",
+    alignItems: "center", // Center content horizontally
+    padding: 20, // Padding around the form fields and button
+    borderRadius: 10,
+    backgroundColor: "#fff", // Optional card-like look for the form
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   header: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 20,
     textAlign: "center",
+    color: "#333",
+    marginBottom: 10,
+  },
+  subHeader: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#666",
+    marginBottom: 30,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "600",
     marginBottom: 8,
-    color: "#333",
+    color: "#555",
   },
   input: {
     borderWidth: 1,
     borderColor: "#ddd",
-    padding: 10,
-    borderRadius: 5,
+    padding: 12,
+    borderRadius: 8,
     backgroundColor: "#fff",
     marginBottom: 15,
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    alignSelf: "stretch", // Ensure inputs stretch to fill the width
   },
   registerButton: {
     backgroundColor: "#46B3A5",
-    paddingVertical: 12,
-    borderRadius: 5,
+    paddingVertical: 14,
+    padding: 20,
+    borderRadius: 8,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20, // Space above the button
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   registerButtonText: {
     color: "#fff",
@@ -164,8 +202,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loginLinkText: {
-    color: "#007bff",
-    fontSize: 16,
+    color: "#333",
+    fontSize: 14,
+  },
+  loginLinkHighlight: {
+    color: "#46B3A5",
+    fontWeight: "600",
+  },
+  pond: {
+    width: 200,
+    height: 100,
+    resizeMode: "contain",
+    marginBottom: 20,
   },
 });
 
